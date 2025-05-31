@@ -6,4 +6,12 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Extensions\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Meridian.Infrastructure\Meridian.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>
