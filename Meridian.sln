@@ -10,6 +10,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meridian.Infrastructure", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meridian.AspNetCore", "src\Meridian.AspNetCore\Meridian.AspNetCore.csproj", "{DC65BD71-4B4B-4643-AEC4-F616415E070C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{4D4763C9-0DD7-411D-9CC3-550FBE7A2830}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meridian.Core.Tests", "tests\Meridian.Core.Tests\Meridian.Core.Tests.csproj", "{A5247696-ACCA-4DA8-A30A-6AE129BCE445}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +24,7 @@ Global
 		{53A30BD8-82FE-443F-9AB5-BFA29ED2BB39} = {A913E508-B8E4-4335-AD35-6FCAAD1A0441}
 		{207DFA2C-F821-473F-AD21-1BA8D5E6524F} = {A913E508-B8E4-4335-AD35-6FCAAD1A0441}
 		{DC65BD71-4B4B-4643-AEC4-F616415E070C} = {A913E508-B8E4-4335-AD35-6FCAAD1A0441}
+		{A5247696-ACCA-4DA8-A30A-6AE129BCE445} = {4D4763C9-0DD7-411D-9CC3-550FBE7A2830}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{CDC010ED-481E-4E92-B87C-731BD508EF52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -38,5 +43,9 @@ Global
 		{DC65BD71-4B4B-4643-AEC4-F616415E070C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DC65BD71-4B4B-4643-AEC4-F616415E070C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DC65BD71-4B4B-4643-AEC4-F616415E070C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5247696-ACCA-4DA8-A30A-6AE129BCE445}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5247696-ACCA-4DA8-A30A-6AE129BCE445}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5247696-ACCA-4DA8-A30A-6AE129BCE445}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5247696-ACCA-4DA8-A30A-6AE129BCE445}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
