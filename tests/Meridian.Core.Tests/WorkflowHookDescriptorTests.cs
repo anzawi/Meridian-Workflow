@@ -5,14 +5,13 @@ using Enums;
 public class WorkflowHookDescriptorTests
 {
     private readonly WorkflowHookDescriptor<MockWorkflowData> _descriptor;
-    private readonly MockWorkflowHook _hook;
 
     public WorkflowHookDescriptorTests()
     {
-        _hook = new MockWorkflowHook();
-        _descriptor = new WorkflowHookDescriptor<MockWorkflowData>
+        var hook = new MockWorkflowHook();
+        this._descriptor = new WorkflowHookDescriptor<MockWorkflowData>
         {
-            Hook = _hook
+            Hook = hook,
         };
     }
 
@@ -35,10 +34,10 @@ public class WorkflowHookDescriptorTests
     public void Mode_CanBeSet(HookExecutionMode mode)
     {
         // Act
-        _descriptor.Mode = mode;
+        this._descriptor.Mode = mode;
 
         // Assert
-        Assert.Equal(mode, _descriptor.Mode);
+        Assert.Equal(mode, this._descriptor.Mode);
     }
 
     [Theory]
@@ -47,10 +46,10 @@ public class WorkflowHookDescriptorTests
     public void ContinueOnFailure_CanBeSet(bool value)
     {
         // Act
-        _descriptor.ContinueOnFailure = value;
+        this._descriptor.ContinueOnFailure = value;
 
         // Assert
-        Assert.Equal(value, _descriptor.ContinueOnFailure);
+        Assert.Equal(value, this._descriptor.ContinueOnFailure);
     }
 
     [Theory]
@@ -59,10 +58,10 @@ public class WorkflowHookDescriptorTests
     public void IsAsync_CanBeSet(bool value)
     {
         // Act
-        _descriptor.IsAsync = value;
+        this._descriptor.IsAsync = value;
 
         // Assert
-        Assert.Equal(value, _descriptor.IsAsync);
+        Assert.Equal(value, this._descriptor.IsAsync);
     }
 
     [Theory]
@@ -71,10 +70,10 @@ public class WorkflowHookDescriptorTests
     public void LogExecutionHistory_CanBeSet(bool value)
     {
         // Act
-        _descriptor.LogExecutionHistory = value;
+        this._descriptor.LogExecutionHistory = value;
 
         // Assert
-        Assert.Equal(value, _descriptor.LogExecutionHistory);
+        Assert.Equal(value, this._descriptor.LogExecutionHistory);
     }
 
     [Fact]
@@ -84,9 +83,9 @@ public class WorkflowHookDescriptorTests
         var newHook = new MockWorkflowHook();
 
         // Act
-        _descriptor.Hook = newHook;
+        this._descriptor.Hook = newHook;
 
         // Assert
-        Assert.Same(newHook, _descriptor.Hook);
+        Assert.Same(newHook, this._descriptor.Hook);
     }
 }

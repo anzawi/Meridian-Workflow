@@ -9,8 +9,8 @@ public class MockWorkflowHook : IWorkflowHook<MockWorkflowData>
 
     public Task ExecuteAsync(WorkflowContext<MockWorkflowData> context)
     {
-        WasExecuted = true;
-        LastContext = context;
+        this.WasExecuted = true;
+        this.LastContext = context;
         return Task.CompletedTask;
     }
 }

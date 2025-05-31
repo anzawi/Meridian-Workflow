@@ -9,7 +9,7 @@ public class WorkflowStateTests
 
     public WorkflowStateTests()
     {
-        _state = new WorkflowState<MockWorkflowData> { Name = "TestState" };
+        this._state = new WorkflowState<MockWorkflowData> { Name = "TestState" };
     }
 
     [Fact]
@@ -28,19 +28,19 @@ public class WorkflowStateTests
     {
         // Use reflection to call the method
         var method = typeof(WorkflowState<MockWorkflowData>).GetMethod(methodName);
-        method?.Invoke(_state, null);
+        method?.Invoke(this._state, null);
         
-        Assert.Equal(expectedType, _state.Type);
+        Assert.Equal(expectedType, this._state.Type);
     }
 
     [Fact]
     public void Action_WithDuplicateName_IgnoresSecondAction()
     {
-        _state.Action("TestAction", "NextState");
-        _state.Action("TestAction", "DifferentNextState");
+        this._state.Action("TestAction", "NextState");
+        this._state.Action("TestAction", "DifferentNextState");
 
-        Assert.Single(_state.Actions);
-        Assert.Equal("NextState", _state.Actions[0].NextState);
+        Assert.Single(this._state.Actions);
+        Assert.Equal("NextState", this._state.Actions[0].NextState);
     }
 
     [Fact]
@@ -49,13 +49,13 @@ public class WorkflowStateTests
         const string actionName = "TestAction";
         const string nextState = "NextState";
         const bool isAutomatic = true;
-        
-        _state.Action(actionName, nextState, 
+
+        this._state.Action(actionName, nextState, 
             config: action => { action.AssignToRoles("TestRole"); },
             isAuto: isAutomatic,
             condition: _ => true);
 
-        var action = Assert.Single(_state.Actions);
+        var action = Assert.Single(this._state.Actions);
         Assert.Multiple(
             () => Assert.Equal(actionName, action.Name),
             () => Assert.Equal(nextState, action.NextState),
@@ -69,9 +69,9 @@ public class WorkflowStateTests
     public void Action_WithAutoAndCondition_SetsPropertiesCorrectly()
     {
         Func<MockWorkflowData, bool> condition = _ => true;
-        _state.Action("AutoAction", "NextState", isAuto: true, condition: condition);
+        this._state.Action("AutoAction", "NextState", isAuto: true, condition: condition);
 
-        var action = Assert.Single(_state.Actions);
+        var action = Assert.Single(this._state.Actions);
         Assert.Multiple(
             () => Assert.True(action.IsAuto),
             () => Assert.Same(condition, action.Condition)

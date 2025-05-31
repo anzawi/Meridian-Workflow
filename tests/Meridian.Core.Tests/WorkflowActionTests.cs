@@ -8,7 +8,7 @@ public class WorkflowActionTests
 
     public WorkflowActionTests()
     {
-        _action = new WorkflowAction<MockWorkflowData>
+        this._action = new WorkflowAction<MockWorkflowData>
         {
             Name = "TestAction",
             NextState = "NextState"
@@ -32,12 +32,12 @@ public class WorkflowActionTests
     public void AssignToUser_AddsUserToAssignedUsers()
     {
         // Act
-        var result = _action.AssignToUsers("user1");
+        var result = this._action.AssignToUsers("user1");
 
         // Assert
         Assert.Multiple(
-            () => Assert.Single(_action.AssignedUsers, "user1"),
-            () => Assert.Same(_action, result)
+            () => Assert.Single(this._action.AssignedUsers, "user1"),
+            () => Assert.Same(this._action, result)
         );
     }
 
@@ -45,12 +45,12 @@ public class WorkflowActionTests
     public void AssignToRole_AddsRoleToAssignedRoles()
     {
         // Act
-        var result = _action.AssignToRoles("role1");
+        var result = this._action.AssignToRoles("role1");
 
         // Assert
         Assert.Multiple(
-            () => Assert.Single(_action.AssignedRoles, "role1"),
-            () => Assert.Same(_action, result)
+            () => Assert.Single(this._action.AssignedRoles, "role1"),
+            () => Assert.Same(this._action, result)
         );
     }
 
@@ -58,12 +58,12 @@ public class WorkflowActionTests
     public void AssignToGroup_AddsGroupToAssignedGroups()
     {
         // Act
-        var result = _action.AssignToGroups("group1");
+        var result = this._action.AssignToGroups("group1");
 
         // Assert
         Assert.Multiple(
-            () => Assert.Single(_action.AssignedGroups, "group1"),
-            () => Assert.Same(_action, result)
+            () => Assert.Single(this._action.AssignedGroups, "group1"),
+            () => Assert.Same(this._action, result)
         );
     }
     
@@ -72,29 +72,29 @@ public class WorkflowActionTests
     public void IsAssignedTo_WithMatchingUser_ReturnsTrue()
     {
         // Arrange
-        _action.AssignToUsers("user1");
+        this._action.AssignToUsers("user1");
 
         // Act & Assert
-        Assert.Contains("user1", _action.AssignedUsers);
+        Assert.Contains("user1", this._action.AssignedUsers);
     }
 
     [Fact]
     public void IsAssignedTo_WithMatchingRole_ReturnsTrue()
     {
         // Arrange
-        _action.AssignToRoles("role1");
+        this._action.AssignToRoles("role1");
 
         // Act & Assert
-        Assert.Contains("role1", _action.AssignedRoles);
+        Assert.Contains("role1", this._action.AssignedRoles);
     }
 
     [Fact]
     public void IsAssignedTo_WithMatchingGroup_ReturnsTrue()
     {
         // Arrange
-        _action.AssignToGroups("group1");
+        this._action.AssignToGroups("group1");
 
         // Act & Assert
-        Assert.Contains("role1", _action.AssignedGroups);
+        Assert.Contains("role1", this._action.AssignedGroups);
     }
 }
