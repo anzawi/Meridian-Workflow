@@ -517,7 +517,6 @@ The following features are planned or under consideration for future releases:
 - [ ] JSON-based Workflow Definitions
 > 🚧 **More coming soon...**
 
-
 ## 👏 Contributing
 Want to help improve Meridian Workflow?
 * Report issues
@@ -528,6 +527,10 @@ Want to help improve Meridian Workflow?
 * Help to add Multi-Request Relationship
 * Help to add Sub-Workflows
 * Help to convert Fluent-DSL to JSON-DSL
+
+## ⚠️ Status / Limitations
+> Unit tests are not fully completed.  
+Contributions to improve coverage and test edge cases are welcome.
 
 ## 📄 License
 Apache License 2.0. Free for use in open-source and commercial applications. Includes conditions for redistribution and attribution.
