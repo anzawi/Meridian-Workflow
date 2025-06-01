@@ -5,13 +5,13 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 ## 📚 Table of Contents
 
 
-- [Why Should I Use Meridian?](#️-why-should-i-use-meridian)
+- [Why Should I Use Meridian?](#-why-should-i-use-meridian)
 - [Core Features](#core-features)
 - [Project Structure](#project-structure)
 - [Installation](#installation)
 - [Get Started in 5 Steps](#get-started-in-5-steps)
-- [Feature Deep Dive](#️-feature-deep-dive)
-- [Hooks (Event Handlers)](#️-hooks-event-handlers)
+- [Feature Deep Dive](#-feature-deep-dive)
+- [Hooks (Event Handlers)](#-hooks-event-handlers)
 - [Action Authorization](#-action-authorization)
 - [Auto Actions](#auto-actions)
 - [File Attachments](#-file-attachments)
@@ -23,7 +23,7 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 - [Use Cases](#-use-cases)
 - [Roadmap](#-roadmap)
 - [Contributing](#-contributing)
-- [Status / Limitations](#️-status--limitations)
+- [Status / Limitations](#-status--limitations)
 - [License](#-license)
 
 
