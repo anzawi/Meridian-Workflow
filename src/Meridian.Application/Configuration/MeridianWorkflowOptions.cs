@@ -4,21 +4,21 @@ using Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 /// <summary>
-/// Represents configurable options for the Mini Workflow system.
+/// Represents configurable options for the Meridian Workflow system.
 /// This class allows customization of database configuration, file storage provider, and workflow registration.
 /// </summary>
 public class MeridianWorkflowOptions
 {
     /// <summary>
-    /// Provides configuration options for building and customizing the MiniWorkflow database setup.
+    /// Provides configuration options for building and customizing the Meridian-Workflow database setup.
     /// </summary>
     /// <remarks>
-    /// This property offers access to <c>MiniWorkflowDbBuilder</c>, enabling customization of
+    /// This property offers access to <c>MeridianWorkflowDbBuilder</c>, enabling customization of
     /// database options such as table prefix, schema, and additional configurations.
-    /// It is primarily used internally by the MiniWorkflow system and can be configured by
-    /// invoking the <c>ConfigureDb(Action&lt;MiniWorkflowDbBuilder&gt;)</c> method.
+    /// It is primarily used internally by the MeridianWorkflow system and can be configured by
+    /// invoking the <c>ConfigureDb(Action&lt;MeridianWorkflowDbBuilder&gt;)</c> method.
     /// </remarks>
-    internal MiniWorkflowDbBuilder DbBuilder { get; } = new();
+    internal MeridianWorkflowDbBuilder DbBuilder { get; } = new();
 
     /// <summary>
     /// Represents the type of file storage provider to be used in the workflow system.
@@ -52,10 +52,10 @@ public class MeridianWorkflowOptions
     public List<IWorkflowBootstrapper> Workflows { get; set; } = [];
 
     /// <summary>
-    /// Configures the database settings for the Mini Workflow system.
+    /// Configures the database settings for the Meridian Workflow system.
     /// </summary>
-    /// <param name="configure">An action that allows customization of the <see cref="MiniWorkflowDbBuilder"/> to specify database configurations.</param>
-    public void ConfigureDb(Action<MiniWorkflowDbBuilder> configure)
+    /// <param name="configure">An action that allows customization of the <see cref="MeridianWorkflowDbBuilder"/> to specify database configurations.</param>
+    public void ConfigureDb(Action<MeridianWorkflowDbBuilder> configure)
     {
         configure(this.DbBuilder);
     }
@@ -85,19 +85,19 @@ public class MeridianWorkflowOptions
 }
 
 /// <summary>
-/// Represents a builder for configuring the database context of the MiniWorkflow module.
+/// Represents a builder for configuring the database context of the Meridian Workflow module.
 /// </summary>
 /// <remarks>
 /// This class is used to configure database-specific options, such as schema and table prefixing,
 /// and allows customization of the <see cref="DbContextOptionsBuilder"/> for the WorkflowDbContext.
 /// </remarks>
-public class MiniWorkflowDbBuilder
+public class MeridianWorkflowDbBuilder
 {
     /// <summary>
     /// Gets or sets a delegate to configure options for the database context.
     /// This property holds an action that allows customization of the
     /// <see cref="DbContextOptionsBuilder"/> for setting up the database context
-    /// used by the MiniWorkflow system.
+    /// used by the Meridian Workflow system.
     /// </summary>
     internal Action<DbContextOptionsBuilder> ConfigureOptions { get; private set; } = _ => { };
 
@@ -106,7 +106,7 @@ public class MiniWorkflowDbBuilder
     /// This property determines the naming convention for tables created within the database,
     /// providing a way to namespace or distinguish tables associated with the workflow from others.
     /// </summary>
-    public string TablesPrefix { get; set; } = "MiniFlow_";
+    public string TablesPrefix { get; set; } = "Meridian_";
 
     /// <summary>
     /// Gets or sets the database schema that will be used for the workflow-related tables.
@@ -115,10 +115,10 @@ public class MiniWorkflowDbBuilder
     public string? Schema { get; set; }
 
     /// <summary>
-    /// Configures the database options for the MiniWorkflow.
+    /// Configures the database options for the Meridian Workflow.
     /// </summary>
     /// <param name="configure">
-    /// A delegate that receives an instance of <see cref="DbContextOptionsBuilder"/> for applying custom database configuration options for MiniWorkflow.
+    /// A delegate that receives an instance of <see cref="DbContextOptionsBuilder"/> for applying custom database configuration options for Meridian Workflow.
     /// </param>
     public void Use(Action<DbContextOptionsBuilder> configure)
     {

@@ -8,27 +8,27 @@ using Microsoft.Extensions.DependencyInjection;
 using Services;
 
 /// <summary>
-/// Provides extension methods for setting up and configuring mini workflow services
+/// Provides extension methods for setting up and configuring Meridian workflow services
 /// within the dependency injection container.
 /// </summary>
 public static class WorkflowDiExtensions
 {
     /// <summary>
-    /// Adds the MiniWorkflow infrastructure and services to the specified IServiceCollection.
+    /// Adds the Meridian Workflow infrastructure and services to the specified IServiceCollection.
     /// </summary>
-    /// <param name="services">The IServiceCollection to which the MiniWorkflow services will be added.</param>
+    /// <param name="services">The IServiceCollection to which the Meridian Workflow services will be added.</param>
     /// <param name="configure">
-    /// A delegate to configure the <see cref="MeridianWorkflowOptions"/> instance, allowing customization of MiniWorkflow behavior.
+    /// A delegate to configure the <see cref="MeridianWorkflowOptions"/> instance, allowing customization of MeridianWorkflow behavior.
     /// </param>
     /// <returns>
-    /// The IServiceCollection with the MiniWorkflow services registered.
+    /// The IServiceCollection with the Meridian Workflow services registered.
     /// </returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when the MiniWorkflow options have not been configured properly:
-    /// - If the database configuration is not specified through <see cref="MiniWorkflowDbBuilder.ConfigureOptions"/>.
+    /// Thrown when the Meridian Workflow options have not been configured properly:
+    /// - If the database configuration is not specified through <see cref="MeridianWorkflowDbBuilder.ConfigureOptions"/>.
     /// - If the attachment processor is enabled but no file storage provider is set.
     /// </exception>
-    public static IServiceCollection AddMiniWorkflow(
+    public static IServiceCollection AddMeridianWorkflow(
         this IServiceCollection services,
         Action<MeridianWorkflowOptions> configure)
     {
@@ -42,7 +42,7 @@ public static class WorkflowDiExtensions
         services.AddDbContext<WorkflowDbContext>(options.DbBuilder.ConfigureOptions);
 
         // Optional: Use TablesPrefix and Schema during model building
-        services.Configure<MiniWorkflowDbBuilder>(builder =>
+        services.Configure<MeridianWorkflowDbBuilder>(builder =>
         {
             builder.TablesPrefix = options.DbBuilder.TablesPrefix;
             builder.Schema = options.DbBuilder.Schema;

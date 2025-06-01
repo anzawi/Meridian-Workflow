@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 /// <summary>
-/// Represents the database context for managing workflow-related entities in the MiniFlow infrastructure.
+/// Represents the database context for managing workflow-related entities in the Meridian infrastructure.
 /// </summary>
 /// <remarks>
 /// This class provides access to the database tables associated with workflow management, including workflow
@@ -17,7 +17,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 /// </remarks>
 /// <remarks>
 /// The <see cref="WorkflowDbContext"/> supports customization of table prefixes and database schema using
-/// the <see cref="MiniWorkflowDbBuilder"/> passed during instantiation.
+/// the <see cref="MeridianWorkflowDbBuilder"/> passed during instantiation.
 /// </remarks>
 /// <example>
 /// Intended for use as a dependency in services like repositories and workflow task processing.
@@ -26,7 +26,7 @@ public class WorkflowDbContext : DbContext
 {
     /// <summary>
     /// The <c>_prefix</c> field is used to store a customizable table name prefix for database entities.
-    /// This value is typically provided through the <c>MiniWorkflowDbBuilder</c> and used in constructing
+    /// This value is typically provided through the <c>MeridianWorkflowDbBuilder</c> and used in constructing
     /// table names during Entity Framework Core model configuration to maintain consistent naming conventions
     /// across the database schema.
     /// </summary>
@@ -37,18 +37,18 @@ public class WorkflowDbContext : DbContext
     /// </summary>
     /// <remarks>
     /// This is an optional property that allows specifying a database schema to group relevant database objects
-    /// under a particular schema namespace, depending on the configuration provided by the <see cref="MiniWorkflowDbBuilder"/>.
+    /// under a particular schema namespace, depending on the configuration provided by the <see cref="MeridianWorkflowDbBuilder"/>.
     /// </remarks>
     private readonly string? _schema;
 
     /// <summary>
-    /// Represents the database context for the MiniFlow workflow module.
+    /// Represents the database context for the Meridian workflow module.
     /// </summary>
     /// <remarks>
     /// This context is responsible for managing access to the database entities related to workflows, including workflow requests, transitions, and tasks.
-    /// It enables configuration for table prefixes and schema through the use of a <see cref="MiniWorkflowDbBuilder"/>.
+    /// It enables configuration for table prefixes and schema through the use of a <see cref="MeridianWorkflowDbBuilder"/>.
     /// </remarks>
-    public WorkflowDbContext(DbContextOptions<WorkflowDbContext> options, MiniWorkflowDbBuilder dbBuilder) :
+    public WorkflowDbContext(DbContextOptions<WorkflowDbContext> options, MeridianWorkflowDbBuilder dbBuilder) :
         base(options)
     {
         this._prefix = dbBuilder.TablesPrefix;
