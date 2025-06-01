@@ -506,6 +506,18 @@ Meridian Workflow can handle a wide variety of business scenarios:
   - Nested approval chains with sub-workflows and task delegation
 - MORE AND MORE!!
 
+## 📍 Roadmap
+
+The following features are planned or under consideration for future releases:
+
+- [ ] Timeout & Escalation Support
+- [ ] Delegation & Reassignment
+- [ ] Multi-request Relationships
+- [ ] Sub-Workflows & Nested Workflows
+- [ ] JSON-based Workflow Definitions
+> 🚧 **More coming soon...**
+
+
 ## 👏 Contributing
 Want to help improve Meridian Workflow?
 * Report issues
