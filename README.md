@@ -4,21 +4,27 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 
 ## 📚 Table of Contents
 
-- [Why Should I Use Meridian?](#why-should-i-use-meridian)
+
+- [Why Should I Use Meridian?](#️-why-should-i-use-meridian)
 - [Core Features](#core-features)
 - [Project Structure](#project-structure)
-- [Get Started](#get-started)
-- [Feature Deep Dive](#feature-deep-dive)
-- [Action Authorization](#action-authorization)
+- [Installation](#installation)
+- [Get Started in 5 Steps](#get-started-in-5-steps)
+- [Feature Deep Dive](#️-feature-deep-dive)
+- [Hooks (Event Handlers)](#️-hooks-event-handlers)
+- [Action Authorization](#-action-authorization)
 - [Auto Actions](#auto-actions)
-- [File Attachments](#file-attachments)
+- [File Attachments](#-file-attachments)
 - [Tasks Per Action](#tasks-per-action)
-- [Visual Debugging (Console Flowchart)](#visual-debugging-console-flowchart)
-- [Architecture](#architecture)
-- [Extending Meridian Workflow](#extending-meridian-workflow)
-- [Use Cases](#use-cases)
-- [Contributing](#contributing)
-- [License](#license)
+- [Visual Debugging (Console Flowchart)](#-visual-debugging-console-flowchart)
+- [Architecture](#-architecture)
+- [Extending Meridian Workflow](#-extending-meridian-workflow)
+- [Sample Projects](#-sample-projects-soon)
+- [Use Cases](#-use-cases)
+- [Roadmap](#-roadmap)
+- [Contributing](#-contributing)
+- [Status / Limitations](#️-status--limitations)
+- [License](#-license)
 
 
 ## ❓ Why Should I Use Meridian?
