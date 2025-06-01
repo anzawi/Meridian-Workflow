@@ -68,7 +68,8 @@ public class WorkflowDefinitionTests
     [Fact]
     public void ValidateActions_WithEmptyActionName_ThrowsWorkflowStateException()
     {
-        this._workflow.State("Initial", state => { state.Action("", "Next"); }).State("Next", state => state.IsCompleted());
+        this._workflow.State("Initial", state => { state.Action("", "Next"); })
+            .State("Next", state => state.IsCompleted());
 
         var exception = Assert.Throws<WorkflowStateException>(() => this._workflow.Validate());
         Assert.Contains("Has an empty name Action", exception.Message);
@@ -90,7 +91,7 @@ public class WorkflowDefinitionTests
     [Fact]
     public void ValidateActions_WithAutoActionWithoutCondition_ThrowsWorkflowActionException()
     {
-        this._workflow.State("Initial", state => { state.Action("Action1", "Next", isAuto: true); })
+        this._workflow.State("Initial", state => { state.Action("Action1", "Next", action => action.IsAuto = true); })
             .State("Next", state => state.IsCompleted());
 
         var exception = Assert.Throws<WorkflowActionException>(() => this._workflow.Validate());
@@ -100,7 +101,14 @@ public class WorkflowDefinitionTests
     [Fact]
     public void ValidateActions_WithNonAutoActionWithCondition_ThrowsWorkflowActionException()
     {
-        this._workflow.State("Initial", state => { state.Action("Action1", "Next", isAuto: false, condition: _ => true); })
+        this._workflow.State("Initial", state =>
+            {
+                state.Action("Action1", "Next", action =>
+                {
+                    action.IsAuto = true;
+                    action.Condition = _ => true;
+                });
+            })
             .State("Next", state => state.IsCompleted());
 
         var exception = Assert.Throws<WorkflowActionException>(() => this._workflow.Validate());

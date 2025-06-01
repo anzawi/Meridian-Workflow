@@ -108,10 +108,10 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// <param name="name">The name of the state to be added to the workflow definition.</param>
     /// <param name="config">An action to configure the state, allowing additional properties or hooks to be set.</param>
     /// <return>The updated WorkflowDefinition instance including the newly added state.</return>
-    public WorkflowDefinition<TData> State(string name, Action<WorkflowState<TData>> config)
+    public WorkflowDefinition<TData> State(string name, Action<WorkflowState<TData>>? config = null)
     {
-        var state = new WorkflowState<TData> { Name = name };
-        config(state);
+        var state = new WorkflowState<TData>(name);
+        config?.Invoke(state);
         if (this.States.Count == 0)
         {
             state.IsStarted();
@@ -120,6 +120,7 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
         this.States.Add(state);
         return this;
     }
+
 
     /// <summary>
     /// Retrieves the workflow transition that represents the initial history entry
@@ -213,7 +214,8 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
 
         if (this.States.All(s => s.Type != StateType.Completed))
         {
-            throw new WorkflowDefinitionException(this.Id, "must have a completed state, use 'state.IsCompleted()' to set the state type to Completed.");
+            throw new WorkflowDefinitionException(this.Id,
+                "must have a completed state, use 'state.IsCompleted()' to set the state type to Completed.");
         }
     }
 

@@ -8,17 +8,15 @@ public class WorkflowActionTests
 
     public WorkflowActionTests()
     {
-        this._action = new WorkflowAction<MockWorkflowData>
-        {
-            Name = "TestAction",
-            NextState = "NextState"
-        };
+        var state = new WorkflowState<MockWorkflowData>("State");
+        state.Action("TestAction", "NextState");
+        this._action = state.Actions[0];
     }
 
     [Fact]
     public void Constructor_InitializesCollectionsEmpty()
     {
-        var action = new WorkflowAction<MockWorkflowData>();
+        var action = new WorkflowAction<MockWorkflowData>("action");
         
         Assert.Multiple(
             () => Assert.Empty(action.AssignedUsers),

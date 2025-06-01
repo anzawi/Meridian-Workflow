@@ -11,7 +11,7 @@ using Interfaces;
 /// <typeparam name="TData">
 /// The type of data associated with the workflow, constrained to implement <see cref="IWorkflowData"/>.
 /// </typeparam>
-public class WorkflowState<TData> where TData : class, IWorkflowData
+public class WorkflowState<TData>(string name) where TData : class, IWorkflowData
 {
     /// <summary>
     /// Represents the internal state type of the workflow state.
@@ -27,7 +27,7 @@ public class WorkflowState<TData> where TData : class, IWorkflowData
     /// Gets or sets the name of the workflow state.
     /// This property is used to identify and label the current state within a workflow.
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; private set; } = name;
 
     /// <summary>
     /// Gets the Code for the workflow state, which is derived from the state name.
@@ -130,52 +130,29 @@ public class WorkflowState<TData> where TData : class, IWorkflowData
     }
 
     /// <summary>
-    /// Defines a new workflow action with the specified name, next state, optional automation flag,
-    /// and an optional condition for execution.
+    /// Adds a configurable action to the current workflow state.
     /// </summary>
-    /// <param name="name">The name of the action to be added.</param>
-    /// <param name="nextState">The name of the next workflow state after the action is executed.</param>
-    /// <param name="isAuto">Indicates whether the action is automatic. Defaults to false.</param>
-    /// <param name="condition">An optional condition function of type <c>Func&lt;TData, bool&gt;</c> that determines whether the action can be executed.</param>
-    /// <returns>Returns the current <c>WorkflowState&lt;TData&gt;</c> instance with the added action.</returns>
-    public WorkflowState<TData> Action(string name, string nextState, bool isAuto = false,
-        Func<TData, bool>? condition = null)
+    /// <param name="name">
+    /// The name of the action to be added.
+    /// </param>
+    /// <param name="nextState">
+    /// The name of the state to transition to after the action is executed.
+    /// </param>
+    /// <param name="config">
+    /// The configuration callback to apply additional settings to the state.
+    /// </param>
+    /// <returns>
+    /// The updated workflow state instance with the new action added to it.
+    /// </returns>
+    public WorkflowState<TData> Action(string name, string nextState, Action<WorkflowAction<TData>>? config = null)
     {
         if (this.Actions.Any(a => a.Name == name))
             return this;
 
-        var action = new WorkflowAction<TData>
-        {
-            Name = name,
-            NextState = nextState,
-            IsAuto = isAuto,
-            Condition = condition
-        };
-        this.Actions.Add(action);
-        return this;
-    }
+        var action = new WorkflowAction<TData>(name);
 
-    /// <summary>
-    /// Configures and adds a new action to the workflow state.
-    /// </summary>
-    /// <param name="name">The name of the action to be added.</param>
-    /// <param name="nextState">The name of the next state the workflow transitions to upon successful execution of the action.</param>
-    /// <param name="config">An action to configure the <see cref="WorkflowAction{TData}"/> instance being added.</param>
-    /// <param name="isAuto">Indicates whether the action is executed automatically without manual intervention. Defaults to false.</param>
-    /// <param name="condition">An optional condition that determines whether the action can be executed based on the workflow data.</param>
-    /// <returns>Returns the modified <see cref="WorkflowState{TData}"/> instance after the action has been added.</returns>
-    public WorkflowState<TData> Action(string name, string nextState, Action<WorkflowAction<TData>> config,
-        bool isAuto = false,
-        Func<TData, bool>? condition = null)
-    {
-        var action = new WorkflowAction<TData>
-        {
-            Name = name,
-            NextState = nextState,
-            IsAuto = isAuto,
-            Condition = condition
-        };
-        config(action);
+        config?.Invoke(action);
+
         this.Actions.Add(action);
         return this;
     }

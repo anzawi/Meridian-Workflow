@@ -9,13 +9,13 @@ public class WorkflowStateTests
 
     public WorkflowStateTests()
     {
-        this._state = new WorkflowState<MockWorkflowData> { Name = "TestState" };
+        this._state = new WorkflowState<MockWorkflowData>("TestState");
     }
 
     [Fact]
     public void Code_GeneratesPascalCaseFromName()
     {
-        var state = new WorkflowState<MockWorkflowData> { Name = "test-state" };
+        var state = new WorkflowState<MockWorkflowData>("test-state");
         Assert.Equal("TestState", state.Code);
     }
 
@@ -29,7 +29,7 @@ public class WorkflowStateTests
         // Use reflection to call the method
         var method = typeof(WorkflowState<MockWorkflowData>).GetMethod(methodName);
         method?.Invoke(this._state, null);
-        
+
         Assert.Equal(expectedType, this._state.Type);
     }
 
@@ -50,10 +50,12 @@ public class WorkflowStateTests
         const string nextState = "NextState";
         const bool isAutomatic = true;
 
-        this._state.Action(actionName, nextState, 
-            config: action => { action.AssignToRoles("TestRole"); },
-            isAuto: isAutomatic,
-            condition: _ => true);
+        this._state.Action(actionName, nextState, action =>
+        {
+            action.AssignToRoles("TestRole");
+            action.IsAuto = isAutomatic;
+            action.Condition = _ => true;
+        });
 
         var action = Assert.Single(this._state.Actions);
         Assert.Multiple(
@@ -69,7 +71,11 @@ public class WorkflowStateTests
     public void Action_WithAutoAndCondition_SetsPropertiesCorrectly()
     {
         Func<MockWorkflowData, bool> condition = _ => true;
-        this._state.Action("AutoAction", "NextState", isAuto: true, condition: condition);
+        this._state.Action("AutoAction", "NextState", action =>
+        {
+            action.IsAuto = true;
+            action.Condition = condition;
+        });
 
         var action = Assert.Single(this._state.Actions);
         Assert.Multiple(
@@ -81,8 +87,8 @@ public class WorkflowStateTests
     [Fact]
     public void Constructor_InitializesCollectionsEmpty()
     {
-        var state = new WorkflowState<MockWorkflowData>();
-        
+        var state = new WorkflowState<MockWorkflowData>("TestState");
+
         Assert.Multiple(
             () => Assert.Empty(state.Actions),
             () => Assert.Empty(state.OnEnterHooks),

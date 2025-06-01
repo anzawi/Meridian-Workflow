@@ -8,13 +8,13 @@ using Interfaces;
 /// and validation mechanisms. This class is generic and works with workflow data of type <typeparamref name="TData"/>.
 /// </summary>
 /// <typeparam name="TData">The type of workflow data associated with the action, which must implement the <see cref="IWorkflowData"/> interface.</typeparam>
-public class WorkflowAction<TData> where TData : class, IWorkflowData
+public class WorkflowAction<TData>(string name) where TData : class, IWorkflowData
 {
     /// <summary>
     /// Gets or sets the name of the workflow action.
     /// This property represents the human-readable identifier of the action.
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; private set; } = name;
 
     /// <summary>
     /// Gets the PascalCase representation of the <see cref="Name"/> property value.
@@ -29,7 +29,7 @@ public class WorkflowAction<TData> where TData : class, IWorkflowData
     /// <summary>
     /// Represents the next state to transition to when the workflow action is executed.
     /// </summary>
-    public string NextState { get; set; } = string.Empty;
+    public string NextState { get; private set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether the workflow action is automatic.
