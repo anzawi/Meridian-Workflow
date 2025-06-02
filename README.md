@@ -8,9 +8,9 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 - [Why Should I Use Meridian?](#-why-should-i-use-meridian)
 - [Core Features](#core-features)
 - [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Get Started in 5 Steps](#get-started-in-5-steps)
-- [Feature Deep Dive](#-feature-deep-dive)
+- [Installation](#-installation)
+- [Get Started in 5 Steps](#-get-started-in-5-steps)
+- [Feature Deep Dive](#%EF%B8%8F-feature-deep-dive)
 - [Hooks (Event Handlers)](#-hooks-event-handlers)
 - [Action Authorization](#-action-authorization)
 - [Auto Actions](#auto-actions)
@@ -24,7 +24,7 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 - [Meridian vs Elsa vs Workflow Core](#-how-is-meridian-different)
 - [Roadmap](#-roadmap)
 - [Contributing](#-contributing)
-- [Status / Limitations](#-status--limitations)
+- [Status / Limitations](#%EF%B8%8F-status--limitations)
 - [License](#-license)
 
 
