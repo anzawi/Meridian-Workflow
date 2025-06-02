@@ -197,6 +197,8 @@ builder.Services.AddMeridianWorkflow(options =>
     [
         new LeaveRequestWorkflow(),
     ];
+    
+    // other options...
 });
 ```
 
@@ -257,8 +259,8 @@ Definition templates help you create reusable workflow patterns and keep your wo
 ```csharp
 public static class GeneralWorkflowTemplates
 {
-    public static WorkflowDefinition<InitialApprovalData> WithCommonStates(
-        this WorkflowDefinition<InitialApprovalData> workflowDefinition)
+    public static WorkflowDefinition<LeaveRequestData> WithCommonStates(
+        this WorkflowDefinition<LeaveRequestData> workflowDefinition)
     {
         workflowDefinition
             .State(GeneralWorkflowStates.Rejected, state =>
@@ -278,8 +280,8 @@ public static class GeneralWorkflowTemplates
         return workflowDefinition;
     }
     
-     public static WorkflowState<InitialApprovalData> WithStandardRejectionActions(
-        this WorkflowState<InitialApprovalData> state)
+     public static WorkflowState<LeaveRequestData> WithStandardRejectionActions(
+        this WorkflowState<LeaveRequestData> state)
     {
         state.Action(GeneralWorkflowActions.Reject, GeneralWorkflowStates.Rejected);
         state.Action(GeneralWorkflowActions.Incomplete, GeneralWorkflowStates.Updating);
@@ -292,7 +294,7 @@ public class InitialApprovalWorkflow : IWorkflowBootstrapper
 {
     public void Register(IWorkflowDefinitionBuilder builder)
     {
-        builder.Define<InitialApprovalData>("InitialApproval", definition =>
+        builder.Define<LeaveRequestData>("InitialApproval", definition =>
         {
             definition
                 .WithCommonStates();
@@ -307,10 +309,10 @@ public class InitialApprovalWorkflow : IWorkflowBootstrapper
 // Hooks template
 public static class CommonHooks
 {
-    public static WorkflowState<InitialApprovalData> SendToSmartServicesHook(
-        this WorkflowState<InitialApprovalData> state)
+    public static WorkflowState<LeaveRequestData> SendToSmartServicesHook(
+        this WorkflowState<LeaveRequestData> state)
     {
-        state.AddHook(new WorkflowHookDescriptor<InitialApprovalData>
+        state.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
         {
             Hook = new SendRequestToSmartServices(),
             IsAsync = true,
@@ -382,6 +384,32 @@ public class NewRequestWasCreated: IWorkflowHook<LeaveRequestData>
     }
 }
 ```
+#### Use Builtin Hooks (reusable hooks)
+Meridian Workflow provides built-in reusable hooks that simplify common workflow behaviors. One such hook is:
+
+##### 🧩 `CompareDataAndLogHook<TData>`
+
+This hook compares the existing request data with the new input data during a transition and logs all field-level changes to the request history.
+It's useful for audit trails and understanding how data evolved over time.
+
+##### 🔧 Usage
+
+Add the hook to a request transition:
+```csharp
+definition.AddCompareDataAndLogHistory();
+```
+
+Or attach it manually to any hook-supported point (e.g., action execution):
+```csharp
+action.AddHook(new WorkflowHookDescriptor<LeaveRequestData> 
+{
+    Hook = new CompareDataAndLogHook<LeaveRequestData>(),
+    Mode = HookExecutionMode.Parallel,
+    IsAsync = false,
+    LogExecutionHistory = false,
+});
+
+```
 
 ## 🔐 Action Authorization
 Assign allowed users, roles, or groups for each action:
@@ -411,8 +439,43 @@ workflowDefinition
         });
     });
 ```
+
+### Validate Model in Action
+Meridian Workflow performs **automatic model validation** before executing an action to ensure data integrity.
+
+#### 🔧 Disabling Auto-Validation
+
+To disable automatic validation on a specific action:
+
+```csharp
+workflowDefinition
+    .State("StateName", state => 
+    {
+        state.Action("actionName", "targetState", action => 
+        {
+            action.DisableAutoValidation();
+        });
+    });
+```
+
+#### ✨ Defining Custom Validation Logic
+You can also define custom validation rules using the WithValidation method. This allows fine-grained, context-specific validation before the action executes.
+
+```csharp
+action.WithValidation(data =>
+{
+    var errors = new List<string>();
+    if (string.IsNullOrEmpty(data.Department))
+    {
+        errors.Add("Department cannot be empty");
+    }
+    
+    return errors;
+});
+```
+
 ## 📎 File Attachments
-No extra effort needed from developers. Just use:
+No extra effort is needed from developers. Just use:
 ```csharp
 public class LeaveRequestData : IWorkflowData
 {
@@ -431,7 +494,60 @@ public interface IWorkflowFileStorageProvider<TReference>
 ```
 You implement this to store on disk, S3, or DB.
 
-### Tasks Per Action
+**Example**
+```csharp
+public class AttachmentReference
+{
+    public Guid AttachmentId { get; set; }
+    public string Path { get; set; } = string.Empty;
+    public string? Source { get; set; }
+}
+
+public class WorkflowFileStorageProvider : IWorkflowFileStorageProvider<AttachmentReference>
+{
+    public async Task<AttachmentReference> UploadAsync(IWorkflowAttachment attachmentFile)
+    {
+        return await Task.FromResult(new AttachmentReference
+        {
+            Path = "File path",
+            Source = "File source",
+            AttachmentId = Guid.NewGuid(),
+        });
+    }
+}
+```
+Register the File Storage Provider
+```csharp
+builder.Services.AddMeridianWorkflow(options =>
+{
+    options.EnableAttachmentProcessor = true; // Optional, true by default
+    options.SetFileStorageProvider(typeof(WorkflowFileStorageProvider));
+    // other options...
+});
+```
+> 💡 Set `EnableAttachmentProcessor = false` to disable built-in attachment processing if you need full control.
+
+## Database Configuration (EF Core support)
+Meridian Workflow supports **Entity Framework Core** out of the box, **NOT FULLY TESTED with all providers**:
+
+> You can integrate any EF Core-supported provider (PostgreSQL, SQLite, Oracle, etc.) by configuring the underlying `DbContext`.
+
+```csharp
+builder.Services.AddMeridianWorkflow(options =>
+{
+     options.ConfigureDb(db =>
+   {
+       db.Use(dbOptions => dbOptions.UseInMemoryDatabase("WorkflowTestDb"));
+       // db.Use(dbOptions => dbOptions.UseSqlServer("WorkflowTestDb"));
+       db.TablesPrefix = "Meridian_"; // Optional: Set custom table prefix
+       db.Schema = "MySchema"; // Optional: Set sechma (required with oracle)
+   });
+});
+```
+> 🔒 Schema and table prefixing allow you to isolate workflow data in shared databases.
+
+
+## Tasks Per Action
 Automatically creates a WorkflowRequestTask per action in a state.
 ```csharp
 public class WorkflowRequestTask
