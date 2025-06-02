@@ -21,6 +21,7 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 - [Extending Meridian Workflow](#-extending-meridian-workflow)
 - [Sample Projects](#-sample-projects-soon)
 - [Use Cases](#-use-cases)
+- [Meridian vs Elsa vs Workflow Core](#-how-is-meridian-different)
 - [Roadmap](#-roadmap)
 - [Contributing](#-contributing)
 - [Status / Limitations](#-status--limitations)
@@ -40,6 +41,10 @@ Meridian is designed with developers in mind. It offers a clean, type-safe, and 
 - 🧩 Clean architecture with plug-and-play extensions
 - ⚡ Suitable for microservices or monoliths
 
+> 💡 **Note:** Not all workflow engines are the same.  
+> **Meridian** is focused on **state-based, human-driven workflows** (e.g., approvals, reviews),  
+> unlike general-purpose engines such as **Workflow Core** or **Elsa**.  
+> 👉 See [How is Meridian Different?](#-how-is-meridian-different) for a detailed comparison.
 
 ## Core Features
 
@@ -627,6 +632,37 @@ Meridian Workflow can handle a wide variety of business scenarios:
 - 🔄 **Multi-Level Reviews**
   - Nested approval chains with sub-workflows and task delegation
 - MORE AND MORE!!
+
+## 🔍 How is Meridian Different?
+
+Meridian Workflow is not a replacement for heavy orchestration engines like Elsa, nor is it a drop-in alternative to Workflow Core. Each serves a different use case and design philosophy.
+
+### Meridian vs Workflow Core
+
+| Feature                     | **Meridian**                                        | **Workflow Core**                     |
+|----------------------------|-----------------------------------------------------|----------------------------------------|
+| Workflow Type              | State Machine (User/Approval-driven)                | Step-based/Flow-based                  |
+| DSL                        | Fully type-safe Fluent API                          | Fluent + JSON                          |
+| Use Case Focus             | Approval workflows, human interaction, business tasks | General-purpose orchestration        |
+| Task Handling              | Built-in task system with roles/users/groups        | Requires custom implementation         |
+| Authorization              | Built-in role/group/user-based action authorization | Not built-in                           |
+| Extensibility              | Hooks, Templates, Pluggable Features                | Middleware/step extensions             |
+| Simplicity & Dev Focus     | Lightweight, zero-config, developer-first           | More generic, more boilerplate         |
+
+### Meridian vs Elsa
+
+| Feature                     | **Meridian**                                        | **Elsa Workflows**                     |
+|----------------------------|-----------------------------------------------------|----------------------------------------|
+| Workflow Type              | Human Workflow / Approval-based                     | Activity-based Orchestration           |
+| Designer UI                | ❌ Not available                                     | ✅ Powerful designer (optional)        |
+| DSL                        | ✅ Fluent API (C#)                                   | C# or JSON                             |
+| Persistence Model          | Optional / Lightweight                              | Required (workflow instance tracking)  |
+| Approval & Action Model    | ✅ States, Actions, Users, Tasks                     | ❌ Not native                           |
+| Suitable For               | Leave requests, ticket lifecycle, business processes | Long-running workflows, integrations   |
+
+---
+
+> Meridian is designed for **human-centric workflows** like approvals, reviews, multi-step user processes, and role-based transitions — all using clean, extensible code without a designer or runtime engine.
 
 ## 📍 Roadmap
 
