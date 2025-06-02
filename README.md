@@ -23,7 +23,7 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 - [Use Cases](#-use-cases)
 - [Roadmap](#-roadmap)
 - [Contributing](#-contributing)
-- [Status / Limitations](# -status--limitations)
+- [Status / Limitations](#--status--limitations)
 - [License](#-license)
 
 
