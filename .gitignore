@@ -1,0 +1,67 @@
+## Build results
+bin/
+obj/
+out/
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Rider & ReSharper
+.idea/
+*.sln.iml
+riderModule.iml
+_ReSharper*/
+*.DotSettings.user
+/.RiderLogs/
+*.sln.ide
+/.idea/
+.cache/
+_ReSharper.Caches/
+
+## VS Code
+.vscode/
+
+## NuGet
+*.nupkg
+*.snupkg
+/packages/
+/*.nuspec
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## .NET Core
+project.assets.json
+project.lock.json
+project.fragment.lock.json
+*.dbmdl
+*.pdb
+
+## Logs
+*.log
+logs/
+*.tlog
+
+## OS generated
+.DS_Store
+Thumbs.db
+
+## Others
+*.vspscc
+*.vssscc
+*.orig
+*.rej
+*.bak
+*.tmp
+
+# Test results
+TestResults/
+*.TestResult.xml
+*.trx
+coverage/
+coverage*.json
+lcov.info
