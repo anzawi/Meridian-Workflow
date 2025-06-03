@@ -11,6 +11,26 @@ using Interfaces;
 public class WorkflowAction<TData>(string name) where TData : class, IWorkflowData
 {
     /// <summary>
+    /// Holds the conditions and their corresponding target states for determining
+    /// state transitions within a workflow action. Each entry in the list is a
+    /// tuple, where the first element is a function defining the transition condition
+    /// based on the workflow data, and the second element specifies the target state
+    /// reached when the condition evaluates to true.
+    /// Read the Docs for <see cref="When"/> For more details and future versions plan.
+    /// </summary>
+    private readonly List<(Func<TData, bool> Condition, string TargetState)> _transitionConditions = [];
+    internal string ResolveNextState(TData data)
+    {
+        foreach (var (condition, targetState) in this._transitionConditions)
+        {
+            if (condition(data))
+                return targetState;
+        }
+        return this.NextState;
+    }
+
+
+    /// <summary>
     /// Gets or sets the name of the workflow action.
     /// This property represents the human-readable identifier of the action.
     /// </summary>
@@ -128,6 +148,45 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
         return (userId != null && this.AssignedUsers.Contains(userId)) ||
                (userRoles != null && this.AssignedRoles.Any(userRoles.Contains)) ||
                (userGroups != null && this.AssignedGroups.Any(userGroups.Contains));
+    }
+
+    /// <summary>
+    /// Defines a conditional transition for the workflow action. This is a simplified version for the current release.
+    /// </summary>
+    /// <param name="condition">
+    /// A function that evaluates the workflow data and returns true if this transition should be taken.
+    /// The conditions are evaluated in the order they are added, and the first matching condition determines
+    /// the target state.
+    /// </param>
+    /// <param name="targetState">
+    /// The name of the state to transition to when the condition evaluates to true.
+    /// </param>
+    /// <returns>The current WorkflowAction instance to allow method chaining.</returns>
+    /// <remarks>
+    /// This is a simplified implementation for the current version. Future versions will introduce:
+    /// <list type="bullet">
+    /// <item><description>Explicit Transition objects with their own validation and hooks</description></item>
+    /// <item><description>Transition priorities and conflict resolution</description></item>
+    /// <item><description>Guard conditions and transition constraints</description></item>
+    /// <item><description>Transition history and audit logging</description></item>
+    /// <item><description>Visual transition representation for workflow diagrams</description></item>
+    /// </list>
+    /// 
+    /// Example usage:
+    /// <code>
+    /// state.Action("Approve", "PendingManagerApproval",
+    ///     action => action
+    ///         .AssignToRoles("Manager")
+    ///         .When(data => data.Amount > 10000, "PendingDirectorApproval")
+    ///         .When(data => data.Amount > 5000, "PendingSupervisorApproval")
+    /// );
+    /// </code>
+    /// </remarks>
+    public WorkflowAction<TData> When(Func<TData, bool> condition, string targetState)
+    {
+        this._transitionConditions.Add((condition, targetState));
+
+        return this;
     }
 
     /// <summary>

@@ -130,20 +130,42 @@ public class WorkflowState<TData>(string name) where TData : class, IWorkflowDat
     }
 
     /// <summary>
-    /// Adds a configurable action to the current workflow state.
+    /// Adds a configurable action to the current workflow state with conditional transitions support.
     /// </summary>
     /// <param name="name">
     /// The name of the action to be added.
     /// </param>
     /// <param name="nextState">
-    /// The name of the state to transition to after the action is executed.
+    /// The default state to transition to after the action is executed. This state will be used when:
+    /// <list type="bullet">
+    /// <item><description>No conditions are defined using the <see cref="WorkflowAction{TData}.When"/> method</description></item>
+    /// <item><description>None of the conditions defined using <see cref="WorkflowAction{TData}.When"/> evaluate to true</description></item>
+    /// </list>
     /// </param>
     /// <param name="config">
-    /// The configuration callback to apply additional settings to the state.
+    /// The configuration callback to apply additional settings to the action. Within this callback, you can:
+    /// <list type="bullet">
+    /// <item><description>Add conditional transitions using the <see cref="WorkflowAction{TData}.When"/> method</description></item>
+    /// <item><description>Assign users, roles, or groups</description></item>
+    /// <item><description>Configure validation and hooks</description></item>
+    /// </list>
     /// </param>
     /// <returns>
     /// The updated workflow state instance with the new action added to it.
     /// </returns>
+    /// <remarks>
+    /// When using conditional transitions with the <see cref="WorkflowAction{TData}.When"/> method in the config action,
+    /// the <paramref name="nextState"/> parameter serves as the default (fallback) state. For example:
+    /// <code>
+    /// state.Action("Approve", "PendingManagerApproval",
+    ///     action => action
+    ///         .AssignToRoles("Manager")
+    ///         .When(data => data.Amount > 10000, "PendingDirectorApproval")    // Evaluated first
+    ///         .When(data => data.Amount > 5000, "PendingSupervisorApproval")   // Evaluated second
+    ///         // If none of the above conditions are true, transitions to "PendingManagerApproval"
+    /// );
+    /// </code>
+    /// </remarks>
     public WorkflowState<TData> Action(string name, string nextState, Action<WorkflowAction<TData>>? config = null)
     {
         if (this.Actions.Any(a => a.Name == name))
