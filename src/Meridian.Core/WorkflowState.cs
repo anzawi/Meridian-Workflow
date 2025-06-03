@@ -149,7 +149,7 @@ public class WorkflowState<TData>(string name) where TData : class, IWorkflowDat
         if (this.Actions.Any(a => a.Name == name))
             return this;
 
-        var action = new WorkflowAction<TData>(name);
+        var action = new WorkflowAction<TData>(name) {NextState = nextState};
 
         config?.Invoke(action);
 

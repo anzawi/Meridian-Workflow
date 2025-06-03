@@ -29,7 +29,7 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// <summary>
     /// Represents the next state to transition to when the workflow action is executed.
     /// </summary>
-    public string NextState { get; private set; } = string.Empty;
+    public string NextState { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether the workflow action is automatic.

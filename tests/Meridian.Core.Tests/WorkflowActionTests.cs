@@ -16,7 +16,7 @@ public class WorkflowActionTests
     [Fact]
     public void Constructor_InitializesCollectionsEmpty()
     {
-        var action = new WorkflowAction<MockWorkflowData>("action");
+        var action = new WorkflowAction<MockWorkflowData>("action") {NextState = "NextState"};
         
         Assert.Multiple(
             () => Assert.Empty(action.AssignedUsers),
