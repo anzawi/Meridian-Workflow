@@ -445,6 +445,70 @@ workflowDefinition
     });
 ```
 
+### Conditional Actions
+
+Meridian Workflow supports **conditional transitions** that dynamically determine the next state based on the data being processed.
+This enables flexible workflows that adapt to runtime conditions.
+
+## Basic Usage
+
+```csharp
+state.Action("Approve", "PendingManagerApproval", action => action
+    .AssignToRoles("Manager")
+    .When(data => data.Amount > 10000, "PendingDirectorApproval")
+    .When(data => data.Amount > 5000, "PendingSupervisorApproval")
+);
+```
+## What This Does
+
+- If `Amount > 10000`, transitions to `"PendingDirectorApproval"`
+- If `Amount > 5000` and `<= 10000`, transitions to `"PendingSupervisorApproval"`
+- Otherwise, transitions to the default state `"PendingManagerApproval"`
+
+---
+
+## How It Works
+
+- Conditions are evaluated in the order they are defined.
+- The first condition that returns `true` determines the transition.
+- If no condition matches, the default transition is used.
+
+---
+
+## Best Practices
+
+### 1. Order Matters
+
+Place more specific conditions before more general ones:
+
+```csharp
+.When(data => data.Amount > 10000, "HighValueApproval") // Specific
+.When(data => data.Amount > 1000, "StandardApproval")   // General
+```
+### 2. Provide a Clear Default
+
+Always specify a meaningful default state:
+
+```csharp
+state.Action("Review", "StandardReview", action => action
+    .When(data => data.IsUrgent, "ExpeditedReview")
+    // Falls back to "StandardReview" if not urgent
+);
+```
+### 3. Avoid Overlapping Conditions
+
+Ensure that conditions are mutually exclusive:
+
+```csharp
+// Good - Conditions don't overlap
+.When(data => data.Days > 30, "ExtendedLeave")
+.When(data => data.Days > 15 && data.Days <= 30, "StandardLeave")
+
+// Bad - Overlapping conditions
+.When(data => data.Days > 15, "StandardLeave")
+.When(data => data.Days > 30, "ExtendedLeave") // Never reached!
+```
+
 ### Validate Model in Action
 Meridian Workflow performs **automatic model validation** before executing an action to ensure data integrity.
 
@@ -672,6 +736,8 @@ The following features are planned or under consideration for future releases:
 - [ ] Delegation & Reassignment
 - [ ] Multi-request Relationships
 - [ ] Sub-Workflows & Nested Workflows
+- [ ] Conditional Transitions Upgrade  
+  (Take a look at **Conditional Actions** in the _Status / Limitations_ section)  
 - [ ] JSON-based Workflow Definitions
 > 🚧 **More coming soon...**
 
@@ -689,7 +755,13 @@ Want to help improve Meridian Workflow?
 
 ## ⚠️ Status / Limitations
 > Unit tests are not fully completed.  
-Contributions to improve coverage and test edge cases are welcome.
+>Contributions to improve coverage and test edge cases are welcome.
+
+- Conditional Actions:
+  - Conditions are evaluated in definition order.
+  - No priority system for condition evaluation.
+  - No built-in conflict detection for overlapping conditions.
+  - No support for transition-specific validation or hooks.
 
 ## 📄 License
 Apache License 2.0. Free for use in open-source and commercial applications. Includes conditions for redistribution and attribution.

@@ -105,7 +105,7 @@ public class WorkflowEngine<TData> : IWorkflowEngine<TData> where TData : class,
         // execute global hooks when request move from state to other
         await HookExecutor.ExecuteAll(this._definition.OnTransitionHooks, ctx);
 
-        request.CurrentState = action.NextState;
+        request.CurrentState = action.ResolveNextState(data);
         request.Data = data;
         request.Transitions = ctx.History;
 
