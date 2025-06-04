@@ -30,7 +30,7 @@ public class WorkflowRequestTask
     /// It is a mandatory property that links the workflow task to the specific workflow request instance.
     /// This property is used to maintain consistency and traceability across workflow actions and states.
     /// </remarks>
-    public string RequestId { get; set; } = null!;
+    public Guid RequestId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the current workflow state.

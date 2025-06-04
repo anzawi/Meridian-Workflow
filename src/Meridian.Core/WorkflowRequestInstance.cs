@@ -15,7 +15,7 @@ public class WorkflowRequestInstance<TData> where TData : class, IWorkflowData
     /// <summary>
     /// Gets or sets the unique identifier of the workflow request instance.
     /// </summary>
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
     /// Gets or sets the identifier of the workflow definition.

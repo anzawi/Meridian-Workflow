@@ -21,7 +21,7 @@ public class WorkflowRequestInstance
     /// This property is used as the primary key in the database table to uniquely identify each workflow request instance.
     /// The identifier is a string representation of a GUID and is automatically generated when a new instance is created.
     /// </remarks>
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     /// <summary>
     /// Gets or sets the identifier of the workflow definition associated with the request instance.

@@ -51,7 +51,7 @@ public interface IWorkflowEngine<TData> where TData : class, IWorkflowData
     Task<WorkflowRequestInstance<TData>> ExecuteActionAsync(WorkflowRequestInstance<TData> request,
         string actionName,
         string performedBy,
-        TData data,
+        TData? data,
         List<string> userRoles,
         List<string> userGroups);
 

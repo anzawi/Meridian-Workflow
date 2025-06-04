@@ -47,7 +47,7 @@ public class WorkflowTaskService<TData>(WorkflowDbContext db, IWorkflowEngineReg
     }
 
     /// <inheritdoc />
-    public async Task CompleteTaskAsync(string requestId, string actionName, string userId)
+    public async Task CompleteTaskAsync(Guid requestId, string actionName, string userId)
     {
         var task = await db.WorkflowTasks.FirstOrDefaultAsync(t =>
             t.RequestId == requestId &&
