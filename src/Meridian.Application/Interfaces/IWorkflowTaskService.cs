@@ -32,7 +32,7 @@ public interface IWorkflowTaskService<TData> where TData : class, IWorkflowData
     /// <param name="actionName">The name of the action associated with the task to complete.</param>
     /// <param name="userId">The identifier of the user completing the task.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task CompleteTaskAsync(string requestId, string actionName, string userId);
+    Task CompleteTaskAsync(Guid requestId, string actionName, string userId);
 
     /// <summary>
     /// Retrieves a list of workflow tasks assigned to the specified user, roles, or groups

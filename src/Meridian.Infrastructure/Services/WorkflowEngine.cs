@@ -16,19 +16,15 @@ using Helpers;
 /// <typeparam name="TData">
 /// The type of data that the workflow operates on. Must implement the IWorkflowData interface.
 /// </typeparam>
-public class WorkflowEngine<TData> : IWorkflowEngine<TData> where TData : class, IWorkflowData
+public class WorkflowEngine<TData>(WorkflowDefinition<TData> definition) : IWorkflowEngine<TData>
+    where TData : class, IWorkflowData
 {
     /// <summary>
     /// Represents the workflow definition that outlines the structure, states, actions,
     /// and behaviors of a workflow. It serves as the blueprint for workflow execution
     /// within the <see cref="WorkflowEngine{TData}"/>.
     /// </summary>
-    private readonly WorkflowDefinition<TData> _definition;
-
-    public WorkflowEngine(WorkflowDefinition<TData> definition)
-    {
-        this._definition = definition;
-    }
+    private readonly WorkflowDefinition<TData> _definition = definition;
 
     /// <inheritdoc />
     public string DefinitionId => this._definition.Id;
@@ -56,7 +52,7 @@ public class WorkflowEngine<TData> : IWorkflowEngine<TData> where TData : class,
     /// <inheritdoc />
     public async Task<WorkflowRequestInstance<TData>> ExecuteActionAsync(WorkflowRequestInstance<TData> request,
         string actionName, string performedBy,
-        TData data, List<string> userRoles, List<string> userGroups)
+        TData? data, List<string> userRoles, List<string> userGroups)
     {
         var currentState = this._definition.States.FirstOrDefault(s => s.Name == request.CurrentState)
                            ?? throw new WorkflowStateException(this._definition.Id, request.CurrentState!, 
@@ -65,9 +61,13 @@ public class WorkflowEngine<TData> : IWorkflowEngine<TData> where TData : class,
         var action = currentState.Actions.FirstOrDefault(a => a.Name == actionName)
                      ?? throw new WorkflowActionException(this._definition.Id, currentState.Name, actionName,
                          "Action not found in current state");
-
-
-        ValidateUserInput(action, data);
+        
+        data ??= request.Data ?? Activator.CreateInstance<TData>();
+        var errors = ValidateUserInput(action, data);
+        if (!string.IsNullOrEmpty(errors))
+        {
+            throw new ValidationException(errors);
+        }
         var ctx = new WorkflowContext<TData>
         {
             Request = request,
@@ -166,20 +166,22 @@ public class WorkflowEngine<TData> : IWorkflowEngine<TData> where TData : class,
     /// <exception cref="ValidationException">
     /// Thrown when the input data fails standard validation or custom validation rules.
     /// </exception>
-    private static void ValidateUserInput(WorkflowAction<TData> action, TData data)
+    private static string? ValidateUserInput(WorkflowAction<TData> action, TData data)
     {
         var context = new ValidationContext(data);
         var results = new List<ValidationResult>();
         var isValid = Validator.TryValidateObject(data, context, results, validateAllProperties: true);
 
         if (!isValid)
-            throw new ValidationException(string.Join("; ", results.Select(r => r.ErrorMessage)));
+            return string.Join("; ", results.Select(r => r.ErrorMessage));
 
         if (action.ValidateInput is not null)
         {
             var customErrors = action.ValidateInput(data);
             if (customErrors.Count > 0)
-                throw new ValidationException(string.Join("; ", customErrors));
+                return string.Join("; ", customErrors);
         }
+
+        return null;
     }
 }
