@@ -26,7 +26,7 @@ public interface IWorkflowRepository
     /// </summary>
     /// <param name="requestId">The unique identifier of the workflow request instance to load.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the workflow request instance if found; otherwise, null.</returns>
-    Task<WorkflowRequestInstance?> LoadAsync(string requestId);
+    Task<WorkflowRequestInstance?> LoadAsync(Guid requestId);
 
     /// <summary>
     /// Retrieves all workflow request instances including their associated transitions.
@@ -42,5 +42,5 @@ public interface IWorkflowRepository
     /// </summary>
     /// <param name="requestId">The unique identifier of the workflow request.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="WorkflowTransition"/> objects representing the history of transitions.</returns>
-    Task<List<WorkflowTransition>> GetHistoryAsync(string requestId);
+    Task<List<WorkflowTransition>> GetHistoryAsync(Guid requestId);
 }

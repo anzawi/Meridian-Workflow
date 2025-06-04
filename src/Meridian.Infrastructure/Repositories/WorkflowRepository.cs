@@ -34,14 +34,14 @@ public class WorkflowRepository(WorkflowDbContext db) : IWorkflowRepository
         catch (DbUpdateException ex)
         {
             throw new WorkflowPersistenceException(
-                request.Id,
+                request.Id.ToString(),
                 "Database update failed",
                 ex);
         }
         catch (Exception ex)
         {
             throw new WorkflowPersistenceException(
-                request.Id,
+                request.Id.ToString(),
                 "Unexpected error during save operation",
                 ex);
         }
@@ -56,7 +56,7 @@ public class WorkflowRepository(WorkflowDbContext db) : IWorkflowRepository
     /// A task that represents the asynchronous operation. The task result contains the
     /// WorkflowRequestInstance if found; otherwise, null.
     /// </returns>
-    public async Task<WorkflowRequestInstance?> LoadAsync(string requestId)
+    public async Task<WorkflowRequestInstance?> LoadAsync(Guid requestId)
     {
         return await db.Requests.Include(r => r.Transitions).FirstOrDefaultAsync(x => x.Id == requestId);
     }
@@ -77,7 +77,7 @@ public class WorkflowRepository(WorkflowDbContext db) : IWorkflowRepository
     /// </summary>
     /// <param name="requestId">The unique identifier of the request whose transitions are to be retrieved.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a list of <see cref="WorkflowTransition"/> objects, representing the history of transitions, ordered by timestamp in descending order. If no transitions exist, an empty list is returned.</returns>
-    public async Task<List<WorkflowTransition>> GetHistoryAsync(string requestId)
+    public async Task<List<WorkflowTransition>> GetHistoryAsync(Guid requestId)
     {
         var request = await db.Requests.Include(r => r.Transitions).FirstOrDefaultAsync(r => r.Id == requestId);
         return request?.Transitions.OrderByDescending(t => t.Timestamp).ToList() ?? [];
