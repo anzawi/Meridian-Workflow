@@ -17,6 +17,7 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 - [File Attachments](#-file-attachments)
 - [Tasks Per Action](#tasks-per-action)
 - [Visual Debugging (Console Flowchart)](#-visual-debugging-console-flowchart)
+- [Available builtin Services / IWorkflowService&lt;TData&gt;](#-iworkflowservicetdata)
 - [Architecture](#-architecture)
 - [Extending Meridian Workflow](#-extending-meridian-workflow)
 - [Sample Projects](#-sample-projects-soon)
@@ -656,6 +657,210 @@ State: Rejected
 
 ```
 
+## 🔧 IWorkflowService<TData>
+
+Provides all operations to manage and execute workflow requests for a specific workflow type.
+
+---
+
+### 📄 Available Methods
+
+| Method                        | Description                                              |
+|------------------------------|----------------------------------------------------------|
+| `CreateRequestAsync`         | Creates a new workflow request instance                  |
+| `DoActionAsync`              | Executes a specific action on a workflow request         |
+| `GetRequestAsync`            | Retrieves a workflow request by ID                       |
+| `GetUserTasksAsync`          | Gets requests assigned to a specific user                |
+| `GetAvailableActions`        | Gets available actions for a request                     |
+| `GetCurrentState`            | Gets the current state of a request                      |
+| `GetRequestHistoryAsync`     | Returns transition history for a request                 |
+| `GetRequestWithHistoryAsync` | Returns request and its history together                 |
+
+---
+
+### 🧩 CreateRequestAsync
+
+**Description:**  
+Creates a new workflow request for the current workflow definition.
+
+**Parameters:**
+
+| Name        | Type   | Required | Description                     |
+|-------------|--------|----------|---------------------------------|
+| `inputData` | TData  | ✅        | Initial workflow input data     |
+| `createdBy` | string | ✅        | ID of the user creating request |
+
+**Example:**
+
+```
+await workflow.CreateRequestAsync(new LeaveRequestData { LeaveType = "Annual" }, "user123");
+```
+
+---
+
+### 🧩 DoActionAsync
+
+**Description:**  
+Executes a specific action (e.g., "Approve", "Reject") on an existing request.
+
+**Overloads:**
+
+- With only action and request ID  
+- With additional data to update the workflow
+
+**Parameters:**
+
+| Name         | Type          | Required | Description                        |
+|--------------|---------------|----------|------------------------------------|
+| `requestId`  | Guid          | ✅        | ID of the request to act on        |
+| `action`     | string        | ✅        | Action name to execute             |
+| `performedBy`| string        | ✅        | User performing the action         |
+| `userRoles`  | List<string>  | ✅        | User's roles                       |
+| `userGroups` | List<string>  | ✅        | User's groups                      |
+| `data`       | TData?        | ❌        | Optional updated request data      |
+
+**Example:**
+
+```
+await workflow.DoActionAsync(requestId, "Submit", "user123", roles, groups);  
+await workflow.DoActionAsync(requestId, "Update", "user123", roles, groups, newData);
+```
+
+---
+
+### 🧩 GetRequestAsync
+
+**Description:**  
+Returns the workflow request by ID.
+
+**Parameters:**
+
+| Name        | Type | Required | Description               |
+|-------------|------|----------|---------------------------|
+| `requestId` | Guid | ✅        | ID of the workflow request|
+
+**Example:**
+
+```
+var request = await workflow.GetRequestAsync(id);
+```
+
+---
+
+### 🧩 GetUserTasksAsync
+
+**Description:**  
+Returns all requests where the user has available actions based on role/group.
+
+**Parameters:**
+
+| Name         | Type          | Required | Description              |
+|--------------|---------------|----------|--------------------------|
+| `userId`     | string        | ✅        | ID of the user           |
+| `userRoles`  | List<string>  | ✅        | List of user's roles     |
+| `userGroups` | List<string>  | ✅        | List of user's groups    |
+
+**Example:**
+
+```
+var tasks = await workflow.GetUserTasksAsync("user123", roles, groups);
+```
+
+---
+
+### 🧩 GetAvailableActions
+
+**Description:**  
+Returns the list of actions the user can perform on the request.
+
+**Overloads:**
+
+- By passing the request object  
+- By passing the request ID
+
+**Parameters (Overload 1):**
+
+| Name         | Type                             | Required | Description             |
+|--------------|----------------------------------|----------|-------------------------|
+| `request`    | WorkflowRequestInstance<TData>   | ✅        | Workflow request object |
+| `userId`     | string?                          | ❌        | ID of the user          |
+| `userRoles`  | List<string>?                    | ❌        | Roles of the user       |
+| `userGroups` | List<string>?                    | ❌        | Groups of the user      |
+
+**Parameters (Overload 2):**
+
+| Name         | Type          | Required | Description           |
+|--------------|---------------|----------|-----------------------|
+| `requestId`  | Guid          | ✅        | ID of the request     |
+| `userId`     | string?       | ❌        | ID of the user        |
+| `userRoles`  | List<string>? | ❌        | Roles of the user     |
+| `userGroups` | List<string>? | ❌        | Groups of the user    |
+
+**Examples:**
+
+```
+workflow.GetAvailableActions(request, "user", roles);  
+await workflow.GetAvailableActions(requestId, "user", roles);
+```
+
+---
+
+### 🧩 GetCurrentState
+
+**Description:**  
+Returns the current state of the specified workflow request.
+
+**Parameters:**
+
+| Name      | Type                           | Required | Description         |
+|-----------|--------------------------------|----------|---------------------|
+| `request` | WorkflowRequestInstance<TData> | ✅        | Request to check    |
+
+**Example:**
+
+```
+var state = workflow.GetCurrentState(request);
+```
+
+---
+
+### 🧩 GetRequestHistoryAsync
+
+**Description:**  
+Returns the full transition history for a request.
+
+**Parameters:**
+
+| Name        | Type | Required | Description         |
+|-------------|------|----------|---------------------|
+| `requestId` | Guid | ✅        | ID of the request   |
+
+**Example:**
+
+```
+var history = await workflow.GetRequestHistoryAsync(request.Id);
+```
+
+---
+
+### 🧩 GetRequestWithHistoryAsync
+
+**Description:**  
+Returns both request and its full transition history.
+
+**Parameters:**
+
+| Name        | Type | Required | Description         |
+|-------------|------|----------|---------------------|
+| `requestId` | Guid | ✅        | ID of the request   |
+
+**Example:**
+
+```
+var full = await workflow.GetRequestWithHistoryAsync(request.Id);
+```
+
+
 ## 📊 Architecture
 * Clean separation of Domain / Application / Infrastructure
 * Plug-and-play registry-based engine resolver
@@ -669,10 +874,9 @@ State: Rejected
 | Hook Execution          | Implement `IWorkflowHook<TData>`                |
 | Custom Transition Logic | Add logic in hook or conditions                 |
 
-## 📁 Sample Projects (Soon)
+## 📁 Sample Projects
 ### ✅ Leave Request
-* Standard approval, HR hooks
-* PDF file attachments
+> 🚧 **More coming soon...**
 
 ## 🧰 Use Cases
 
