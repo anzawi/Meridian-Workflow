@@ -17,7 +17,7 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 - [File Attachments](#-file-attachments)
 - [Tasks Per Action](#tasks-per-action)
 - [Visual Debugging (Console Flowchart)](#-visual-debugging-console-flowchart)
-- [Available builtin Services / IWorkflowService&lt;TData&gt;](#-iworkflowservicetdata)
+- [Available builtin Services / IWorkflowService&lt;TData&gt;](#-iworkflowservice)
 - [Architecture](#-architecture)
 - [Extending Meridian Workflow](#-extending-meridian-workflow)
 - [Sample Projects](#-sample-projects-soon)
