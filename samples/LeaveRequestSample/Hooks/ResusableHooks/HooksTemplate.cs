@@ -13,12 +13,13 @@ public static class HooksTemplate
         this WorkflowAction<LeaveRequestData> action, string source, bool fromState = true)
     
     {
-        action.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
+        action.AddHook(
+            new SendNotification(source, fromState), 
+            config =>
         {
-            Hook = new SendNotification(source, fromState),
-            Mode = HookExecutionMode.Parallel,
-            IsAsync = true,
-            LogExecutionHistory = false,
+            config.Mode = HookExecutionMode.Parallel;
+            config.IsAsync = true;
+            config.LogExecutionHistory = false;
         });
         return action;
     }

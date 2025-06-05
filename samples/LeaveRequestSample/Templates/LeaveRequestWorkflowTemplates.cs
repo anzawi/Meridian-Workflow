@@ -30,13 +30,15 @@ public static class LeaveRequestWorkflowTemplates
     public static WorkflowDefinition<LeaveRequestData> WithLeaveRequestHooks(
         this WorkflowDefinition<LeaveRequestData> definition)
     {
-        return definition.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
+        // NOTE: we can define HOOKs in multiple ways please read here:
+        // https://github.com/anzawi/Meridian-Workflow/tree/main?tab=readme-ov-file#-hooks-event-handlers.
+        return definition.AddHook(new NewLeaveRequestCreated(),
+            cfg =>
             {
-                Hook = new NewLeaveRequestCreated(),
-                LogExecutionHistory = false,
-                ContinueOnFailure = false,
-                IsAsync = false,
-                Mode = HookExecutionMode.Sequential,
+                cfg.LogExecutionHistory = false;
+                cfg.ContinueOnFailure = false;
+                cfg.IsAsync = false;
+                cfg.Mode = HookExecutionMode.Sequential;
             }
         );
     }

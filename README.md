@@ -20,14 +20,14 @@ A lightweight, developer-first workflow engine built for .NET 8+. Define workflo
 - [Available builtin Services / IWorkflowService&lt;TData&gt;](#-iworkflowservice)
 - [Architecture](#-architecture)
 - [Extending Meridian Workflow](#-extending-meridian-workflow)
-- [Sample Projects](#-sample-projects-soon)
+- [Sample Projects](#-sample-projects)
 - [Use Cases](#-use-cases)
 - [Meridian vs Elsa vs Workflow Core](#-how-is-meridian-different)
 - [Roadmap](#-roadmap)
 - [Contributing](#-contributing)
 - [Status / Limitations](#%EF%B8%8F-status--limitations)
 - [License](#-license)
-
+- [IWorkflowService&lt;TData&gt;](#-iworkflowservicetdata)
 
 ## ❓ Why Should I Use Meridian?
 
@@ -328,68 +328,166 @@ public static class CommonHooks
     }
 }
 ```
-
 ### 🧠 Hooks (Event Handlers)
+
 * **Purpose:** Execute logic during request lifecycle (create, transition, entry/exit).
 * **Types:**
-  - Workflow Definition
-    - OnCreateHooks (When a new request is created)
-    - OnTransitionHooks (When request transitions)
-  - State
-    - OnEnterHooks (when request enters the state)
-    - OnExitHooks (when request exits the state)
-  - Action
-    - OnExecuteHooks (when user takes an action)
+  - **Workflow Definition**
+    - `OnCreateHooks` (when a new request is created)
+    - `OnTransitionHooks` (when request transitions)
+  - **State**
+    - `OnEnterHooks` (when request enters the state)
+    - `OnExitHooks` (when request exits the state)
+  - **Action**
+    - `OnExecuteHooks` (when a user takes an action)
 
-In simple and easy way you can use `AddHook` extension to register hooks, or you can register it using the props.
+You can use the `AddHook` extension method in three ways:
 
-- Using `AddHook`:
-```csharp
-// Add Hook to workflow on new request was created
+1. Pass a `WorkflowHookDescriptor<TData>` (full control)
+2. Pass a class implementing `IWorkflowHook<TData>`
+3. Pass a lambda delegate `Func<WorkflowContext<TData>, Task>`
+
+---
+
+#### ✅ Add Hook to Workflow (using WorkflowHookDescriptor)
+```
 workflowDefinition.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
-        {
-            Hook = new NewRequestWasCreated(),
-            IsAsync = false,
-        }
-    WorkflowHookType.OnRequestCreated);
-
-// Add Hook to state (on enter)
-workflowDefinition
-    .State("StateName", state => 
-    {
-        state.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
-        {
-            Hook = new SendRequestToSmartServices(),
-            IsAsync = true,
-        }, StateHookType.OnStateEnter);
-    });
-
-// Add Hook to action execution
-workflowDefinition
-    .State("StateName", state => 
-    {
-        state.Action("actionName", "targetState", action => 
-        {
-            action.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
-          {
-              Hook = new DoSomething(),
-              IsAsync = true,
-            });
-        });
-    });
+{
+    Hook = new NewRequestWasCreated(),
+    IsAsync = false,
+    LogExecutionHistory = true
+}, WorkflowHookType.OnRequestCreated);
 ```
 
-#### Define Hooks
-Consider rephrasing as “To use a hook like `NewRequestWasCreated`
-```csharp
-public class NewRequestWasCreated: IWorkflowHook<LeaveRequestData>
+#### ✅ Add Hook to Workflow (using class)
+```
+workflowDefinition.AddHook(
+    new NewRequestWasCreated(),
+    cfg => {
+        cfg.IsAsync = false;
+    },
+    WorkflowHookType.OnRequestCreated);
+```
+
+#### ✅ Add Hook to Workflow (using lambda)
+```
+workflowDefinition.AddHook(
+    async ctx =>
+    {
+        Console.WriteLine($"New request for {ctx.InputData?.EmployeeName}");
+        await Task.CompletedTask;
+    },
+    cfg => {
+        cfg.IsAsync = true;
+        cfg.LogExecutionHistory = false;
+    },
+    WorkflowHookType.OnRequestCreated);
+```
+
+#### ✅ Add Hook to State (using WorkflowHookDescriptor)
+```
+workflowDefinition.State("StateName", state =>
+{
+    state.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
+    {
+        Hook = new SendRequestToSmartServices(),
+        IsAsync = true,
+    }, StateHookType.OnStateEnter);
+});
+```
+
+#### ✅ Add Hook to State (using class)
+```
+workflowDefinition.State("StateName", state =>
+{
+    state.AddHook(
+        new SendRequestToSmartServices(),
+        cfg => {
+            cfg.IsAsync = true;
+        },
+        StateHookType.OnStateEnter);
+});
+```
+
+#### ✅ Add Hook to State (using lambda)
+```
+workflowDefinition.State("StateName", state =>
+{
+    state.AddHook(
+        async ctx =>
+        {
+            Console.WriteLine("Entered state");
+            await Task.CompletedTask;
+        },
+        cfg => {
+            cfg.IsAsync = true;
+        },
+        StateHookType.OnStateEnter);
+});
+```
+
+#### ✅ Add Hook to Action (using WorkflowHookDescriptor)
+```
+workflowDefinition.State("StateName", state =>
+{
+    state.Action("actionName", "targetState", action =>
+    {
+        action.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
+        {
+            Hook = new DoSomething(),
+            IsAsync = true,
+        });
+    });
+});
+```
+
+#### ✅ Add Hook to Action (using class)
+```
+workflowDefinition.State("StateName", state =>
+{
+    state.Action("actionName", "targetState", action =>
+    {
+        action.AddHook(
+            new DoSomething(),
+            cfg => {
+                cfg.IsAsync = true;
+            });
+    });
+});
+```
+
+#### ✅ Add Hook to Action (using lambda)
+```
+workflowDefinition.State("StateName", state =>
+{
+    state.Action("actionName", "targetState", action =>
+    {
+        action.AddHook(
+            async ctx =>
+            {
+                Console.WriteLine("Action executed");
+                await Task.CompletedTask;
+            },
+            cfg => {
+                cfg.IsAsync = true;
+            });
+    });
+});
+```
+
+#### 🧩 Define a Hook Class
+```
+public class NewRequestWasCreated : IWorkflowHook<LeaveRequestData>
 {
     public Task ExecuteAsync(WorkflowContext<LeaveRequestData> context)
     {
+        Console.WriteLine("Hook class executed");
         return Task.CompletedTask;
     }
 }
 ```
+
+
 #### Use Builtin Hooks (reusable hooks)
 Meridian Workflow provides built-in reusable hooks that simplify common workflow behaviors. One such hook is:
 
@@ -969,3 +1067,8 @@ Want to help improve Meridian Workflow?
 
 ## 📄 License
 Apache License 2.0. Free for use in open-source and commercial applications. Includes conditions for redistribution and attribution.
+
+
+## 🔧 IWorkflowService<TData>
+
+Provides all operations to manage and execute workflow requests for a specific workflow type.

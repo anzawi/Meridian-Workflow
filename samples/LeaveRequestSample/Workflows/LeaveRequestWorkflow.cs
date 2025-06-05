@@ -8,6 +8,7 @@ using Meridian.Application.Interfaces;
 using Meridian.Core;
 using Meridian.Core.Enums;
 using Models;
+using Models.Enums;
 
 // In this class you will see the workflow definition twice!
 // First one (Commented out) using the TemplateExtensions feature -clearly its simplify the workflow definition and make it more clearer.
@@ -52,6 +53,9 @@ public sealed class LeaveRequestWorkflow : IWorkflowBootstrapper
     {
         builder.Define<LeaveRequestData>("LeaveRequestWorkflow", workflow =>
         {
+            // NOTE: we can define HOOKs in multiple ways please read here:
+            // https://github.com/anzawi/Meridian-Workflow/tree/main?tab=readme-ov-file#-hooks-event-handlers.
+
             // Add a hook to the workflow in general (type after request created)
             // this example show you the direct way to add hooks.
             // the second parameter is optional, you can use any other type. its WorkflowHookType.OnRequestCreated by default
@@ -64,6 +68,21 @@ public sealed class LeaveRequestWorkflow : IWorkflowBootstrapper
                 // here the functionality
                 Hook = new NewLeaveRequestCreated(),
             }, WorkflowHookType.OnRequestCreated);
+            
+            // The same hook abovecan be added like this also:
+            /*
+             workflow.AddHook(new NewLeaveRequestCreated(),
+               cfg =>
+               {
+                   cfg.LogExecutionHistory = false; // Dont log this execution in the request history -- true by default
+                   cfg.ContinueOnFailure = false; // Continue the workflow if the hook failed -- false by default
+                   cfg.IsAsync = false; // Is the hook async -- false by default
+                   cfg.Mode = HookExecutionMode
+                       .Sequential; // Hook Mode Sequential or parallel -- Sequential by default
+               }, WorkflowHookType.OnRequestCreated);
+             */
+
+
             // Define the start state, the request after submit will be in Under direct manager review state
             workflow.State(LeaveRequestStates.DirectManagerReview, state =>
             {
@@ -88,8 +107,8 @@ public sealed class LeaveRequestWorkflow : IWorkflowBootstrapper
                         if (string.IsNullOrWhiteSpace(data.Reason))
                             errors.Add("Reason is required.");
 
-                        //  if (data is { LeaveType: LeaveTypes.Sick, MedicalReport: null })
-                        //      errors.Add("Medical Report is required for sick leave.");
+                        if (data is { LeaveType: LeaveTypes.Sick, MedicalReport: null })
+                            errors.Add("Medical Report is required for sick leave.");
 
                         return errors;
                     });
@@ -104,11 +123,8 @@ public sealed class LeaveRequestWorkflow : IWorkflowBootstrapper
             workflow.State(LeaveRequestStates.SectionHeadReview, state =>
             {
                 // Here we add hook to send notification in direct way.
-                state.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
-                {
-                    Hook = new SendNotification(LeaveRequestStates.SectionHeadReview),
-                    Mode = HookExecutionMode.Parallel,
-                }, StateHookType.OnStateEnter);
+                state.AddHook(new SendNotification(LeaveRequestStates.SectionHeadReview),
+                    cfg => { cfg.Mode = HookExecutionMode.Parallel; }, StateHookType.OnStateEnter);
                 // the section head can approve the request
                 state.Action(LeaveRequestActions.Approve, LeaveRequestStates.HrReview, action =>
                 {
@@ -144,21 +160,15 @@ public sealed class LeaveRequestWorkflow : IWorkflowBootstrapper
             // The request after any reject action will be in Rejected state and marked as rejected.
             workflow.State(LeaveRequestStates.Rejected, state =>
             {
-                state.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
-                {
-                    Hook = new SendNotification(LeaveRequestStates.Rejected),
-                    Mode = HookExecutionMode.Parallel,
-                }, StateHookType.OnStateEnter);
+                state.AddHook(new SendNotification(LeaveRequestStates.Rejected),
+                    cfg => { cfg.Mode = HookExecutionMode.Parallel; }, StateHookType.OnStateEnter);
                 state.IsRejected();
             });
             // The request after HR approval will be in Approved state if the request is approved and marked as completed.
             workflow.State(LeaveRequestStates.Approved, state =>
             {
-                state.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
-                {
-                    Hook = new SendNotification(LeaveRequestStates.Rejected),
-                    Mode = HookExecutionMode.Parallel,
-                }, StateHookType.OnStateEnter);
+                state.AddHook(new SendNotification(LeaveRequestStates.Rejected),
+                    cfg => { cfg.Mode = HookExecutionMode.Parallel; }, StateHookType.OnStateEnter);
                 state.IsCompleted();
             });
 
