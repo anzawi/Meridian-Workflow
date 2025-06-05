@@ -1,6 +1,7 @@
 namespace Meridian.Application.Extensions;
 
 using Core;
+using Core.Delegates;
 using Core.Enums;
 using Core.Interfaces;
 
@@ -38,107 +39,6 @@ public static class WorkflowDslExtensions
         where TData : class, IWorkflowData
     {
         action.ValidateInput = validator;
-        return action;
-    }
-
-    /// <summary>
-    /// Adds a hook to a workflow definition with the specified descriptor and hook type.
-    /// </summary>
-    /// <typeparam name="TData">
-    /// The type of the workflow data, which must implement <see cref="IWorkflowData"/>.
-    /// </typeparam>
-    /// <param name="def">The workflow definition to which the hook will be added.</param>
-    /// <param name="descriptor">The hook descriptor defining the hook's properties and behavior.</param>
-    /// <param name="hookType">
-    /// Optional. Specifies the type of hook to be added. Default value is <see cref="WorkflowHookType.OnRequestCreated"/>.
-    /// </param>
-    /// <returns>
-    /// The updated workflow definition with the added hook.
-    /// </returns>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown when the specified hook type is not recognized.
-    /// </exception>
-    public static WorkflowDefinition<TData> AddHook<TData>(
-        this WorkflowDefinition<TData> def,
-        WorkflowHookDescriptor<TData> descriptor,
-        WorkflowHookType hookType = WorkflowHookType.OnRequestCreated)
-        where TData : class, IWorkflowData
-    {
-        switch (hookType)
-        {
-            case WorkflowHookType.OnRequestCreated:
-                def.OnCreateHooks.Add(descriptor);
-                break;
-            case WorkflowHookType.OnRequestTransition:
-                def.OnTransitionHooks.Add(descriptor);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
-        }
-
-        return def;
-    }
-
-    /// <summary>
-    /// Adds a workflow hook to the specified workflow state. The hook will be triggered based on the provided hook type (OnStateEnter or OnStateExit).
-    /// </summary>
-    /// <typeparam name="TData">The type of workflow data associated with the workflow state.</typeparam>
-    /// <param name="state">The workflow state to which the hook will be added.</param>
-    /// <param name="descriptor">The descriptor of the hook specifying its behavior, execution mode, and configuration.</param>
-    /// <param name="hookType">The type of state hook to determine when the hook should be executed (e.g., OnStateEnter, OnStateExit).</param>
-    /// <returns>The updated workflow state with the added hook.</returns>
-    public static WorkflowState<TData> AddHook<TData>(
-        this WorkflowState<TData> state,
-        WorkflowHookDescriptor<TData> descriptor,
-        StateHookType hookType)
-        where TData : class, IWorkflowData
-    {
-        switch (hookType)
-        {
-            case StateHookType.OnStateEnter:
-                state.OnEnterHooks.Add(descriptor);
-                break;
-            case StateHookType.OnStateExit:
-                state.OnExitHooks.Add(descriptor);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
-        }
-
-        return state;
-    }
-
-    /// <summary>
-    /// Adds the specified hook descriptor to all actions within the workflow state.
-    /// </summary>
-    /// <typeparam name="TData">The type of the workflow data.</typeparam>
-    /// <param name="state">The workflow state to which the hook will be added.</param>
-    /// <param name="descriptor">The hook descriptor to be added to all actions within the state.</param>
-    /// <returns>The updated workflow state with the hook added to all actions.</returns>
-    public static WorkflowState<TData> AddHookForAllActions<TData>(
-        this WorkflowState<TData> state,
-        WorkflowHookDescriptor<TData> descriptor)
-        where TData : class, IWorkflowData
-    {
-        foreach (var action in state.Actions)
-        {
-            action.AddHook(descriptor);
-        }
-
-        return state;
-    }
-
-    /// Adds a hook to execute during the workflow action's execution phase.
-    /// <param name="action">The workflow action to which the hook will be added.</param>
-    /// <param name="descriptor">The descriptor that contains the hook definition and execution details.</param>
-    /// <typeparam name="TData">The type of the workflow data associated with the action.</typeparam>
-    /// <returns>The updated workflow action with the added hook.</returns>
-    public static WorkflowAction<TData> AddHook<TData>(
-        this WorkflowAction<TData> action,
-        WorkflowHookDescriptor<TData> descriptor)
-        where TData : class, IWorkflowData
-    {
-        action.OnExecuteHooks.Add(descriptor);
         return action;
     }
 
