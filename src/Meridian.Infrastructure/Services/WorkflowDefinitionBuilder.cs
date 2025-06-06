@@ -7,7 +7,7 @@ using Core.Interfaces;
 /// <inheritdoc />
 public class WorkflowDefinitionBuilder : IWorkflowDefinitionBuilder
 {
-    private readonly List<(string DefinitionId, object Engine, Type DataType)> _engines = new();
+    private readonly List<(string DefinitionId, object Engine, Type DataType)> _engines = [];
     /// <inheritdoc />
     public void Define<TData>(string definitionId, Action<WorkflowDefinition<TData>> configure)
         where TData : class, IWorkflowData
