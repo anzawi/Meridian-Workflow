@@ -143,7 +143,7 @@ public sealed class LeaveRequestWorkflow : IWorkflowBootstrapper
             workflow.State(LeaveRequestStates.HrReview, state =>
             {
                 // the HR can approve the request
-                state.Action(LeaveRequestActions.Approve, LeaveRequestActions.Approve, action =>
+                state.Action(LeaveRequestActions.Approve, LeaveRequestStates.Approved, action =>
                 {
                     action.AssignToRoles("hr");
                     action.NotifyEmployee(LeaveRequestActions.Approve, false);
