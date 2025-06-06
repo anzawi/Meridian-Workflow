@@ -607,6 +607,77 @@ Ensure that conditions are mutually exclusive:
 .When(data => data.Days > 15, "StandardLeave")
 .When(data => data.Days > 30, "ExtendedLeave") // Never reached!
 ```
+### Transition Tables (Multi-Condition Routing)
+
+For complex conditional transitions, Meridian supports a more expressive syntax using a **transition table**. This allows you to define multiple branching paths in a single statement.
+
+#### Example
+
+```csharp
+state.Action("Approve", action => action.TransitionTo(
+    (data => data.Amount > 10000, "PendingDirectorApproval", "Amount > 10000"),
+    (data => data.Amount > 5000, "PendingSupervisorApproval", "Amount > 5000"),
+    (data => true, "PendingManagerApproval", "Default")
+));
+```
+
+#### What This Does
+
+- Transitions to `"PendingDirectorApproval"` if `Amount > 10000`
+- Otherwise, transitions to `"PendingSupervisorApproval"` if `Amount > 5000`
+- Otherwise, transitions to `"PendingManagerApproval"` (default case)
+
+#### Benefits
+
+- Centralizes all conditional transitions in a single block
+- Improves readability and maintainability
+- Enables optional labeling for documentation and debugging
+
+#### Optional Overload
+
+You can omit labels if not needed:
+
+```csharp
+state.Action("Approve", action => action.TransitionTo(
+    (data => data.Amount > 10000, "PendingDirectorApproval"),
+    (data => data.Amount > 5000, "PendingSupervisorApproval"),
+    (data => true, "PendingManagerApproval")
+));
+```
+
+---
+
+### How Transition Tables Work
+
+- All conditions are evaluated **in order**.
+- The **first match** determines the next state.
+- Labels (optional) are used for visual tools and logs.
+- Transition tables override `.When(...)` if both are defined.
+
+---
+
+### Best Practices for Transition Tables
+
+- Keep the fallback case `data => true` as the **last rule**.
+- Use labels to describe business rules for better debugging and documentation.
+- Do not mix `.When(...)` and `.TransitionTo(...)` unless intentional — only one will be used.
+
+```csharp
+// Good
+.TransitionTo(
+    (d => d.Type == "Annual", "AnnualReview", "Annual leave"),
+    (d => d.Type == "Sick", "MedicalReview", "Sick leave"),
+    (d => true, "DefaultReview", "Fallback")
+)
+```
+
+```csharp
+// Avoid this unless you know what you're doing
+.When(d => d.Type == "Urgent", "Expedited")
+.TransitionTo((d => true, "Standard"))
+```
+
+
 
 ### Validate Model in Action
 Meridian Workflow performs **automatic model validation** before executing an action to ensure data integrity.

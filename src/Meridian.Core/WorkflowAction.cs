@@ -19,16 +19,33 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// Read the Docs for <see cref="When"/> For more details and future versions plan.
     /// </summary>
     private readonly List<(Func<TData, bool> Condition, string TargetState)> _transitionConditions = [];
+
+    /// <summary>
+    /// Stores a collection of transition rules defining the conditions and target states
+    /// for transitioning from one state to another within a workflow action. Each rule
+    /// is represented as a <see cref="TransitionRule{TData}"/> object that specifies a
+    /// condition to evaluate and the target state to transition to when the condition is met.
+    /// </summary>
+    private readonly List<TransitionRule<TData>> _transitionRules = [];
+
+    /// Determines the next workflow state based on the provided data and defined transition rules or conditions.
+    /// <param name="data">The workflow data used to evaluate conditions and transition rules. Must not be null.</param>
+    /// <returns>The name of the next state if a matching condition or rule is satisfied; otherwise, the default next state.</returns>
     internal string ResolveNextState(TData data)
     {
+        foreach (var rule in this._transitionRules.Where(rule => rule.Condition(data)))
+        {
+            return rule.TargetState;
+        }
+
         foreach (var (condition, targetState) in this._transitionConditions)
         {
             if (condition(data))
                 return targetState;
         }
+
         return this.NextState;
     }
-
 
     /// <summary>
     /// Gets or sets the name of the workflow action.
@@ -190,6 +207,35 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     }
 
     /// <summary>
+    /// Adds transition rules to the workflow action with custom labels.
+    /// </summary>
+    /// <param name="transitionRules">Array of transition rules containing conditions, target states, and labels.</param>
+    /// <returns>The current workflow action instance for method chaining.</returns>
+    public WorkflowAction<TData> TransitionTo(
+        params (Func<TData, bool> When, string Target, string Label)[] transitionRules)
+    {
+        foreach (var (condition, targetState, label) in transitionRules)
+        {
+            ValidateTransitionRule(condition, targetState);
+            this._transitionRules.Add(new TransitionRule<TData>(condition, targetState, label));
+        }
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds transition rules to the workflow action with auto-generated labels.
+    /// </summary>
+    /// <param name="transitionRules">Array of transition rules containing conditions and target states.</param>
+    /// <returns>The current workflow action instance for method chaining.</returns>
+    public WorkflowAction<TData> TransitionTo(
+        params (Func<TData, bool> When, string Target)[] transitionRules)
+    {
+        return this.TransitionTo(transitionRules.Select(rule =>
+            (rule.When, rule.Target, Label: $"Transition to [{rule.Target}]")).ToArray());
+    }
+
+    /// <summary>
     /// Assigns the specified users to the workflow action.
     /// </summary>
     /// <param name="users">An array of user identifiers to be assigned to the workflow action.</param>
@@ -222,5 +268,19 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     {
         this.AssignedGroups.AddRange(groups.Distinct());
         return this;
+    }
+
+    /// Validates a transition rule by ensuring the condition and target state are properly defined.
+    /// <param name="condition">The condition function that determines whether the transition is valid. Must not be null.</param>
+    /// <param name="targetState">The target state to transition to if the condition is satisfied. Must not be null or empty.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the condition is null.</exception>
+    /// <exception cref="ArgumentException">Thrown if the target state is null, empty, or consists only of whitespace.</exception>
+    private static void ValidateTransitionRule(Func<TData, bool>? condition, string? targetState)
+    {
+        if (condition is null)
+            throw new ArgumentNullException(nameof(condition), "Condition cannot be null");
+
+        if (string.IsNullOrWhiteSpace(targetState))
+            throw new ArgumentException("Target state cannot be null or empty");
     }
 }
