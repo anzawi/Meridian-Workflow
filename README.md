@@ -515,8 +515,18 @@ action.AddHook(new WorkflowHookDescriptor<LeaveRequestData>
 
 ```
 
-## 🔐 Action Authorization
-Assign allowed users, roles, or groups for each action:
+### 🔐 Action Authorization
+
+Meridian Workflow lets you define who can see or perform each action by assigning allowed users, roles, or groups.
+
+This ensures that only authorized participants can interact with workflow actions during execution.
+
+---
+
+### 🔧 Basic Assignment
+
+Use these methods for simple access control:
+
 ```csharp
 workflowDefinition
     .State("StateName", state => 
@@ -529,6 +539,49 @@ workflowDefinition
         });
     });
 ```
+
+✅ A user is authorized if they match **any** of the assigned roles, users, or groups.
+
+---
+
+### 🧠 Advanced Authorization Rules (Optional)
+
+For more complex scenarios (e.g., logical conditions, exclusions, or nested rules), use a fluent expression builder:
+
+```csharp
+state.Action("Approve", "Approved", action => action.AssignTo(rules => rules
+    .Role("manager", "supervisor")
+    .Or(b => b.Group("finance_team"))
+    .And(b => b.Not(x => x.Role("intern")))
+));
+```
+
+---
+
+### 🔎 Rule Evaluation Logic
+
+- Conditions are evaluated at runtime against the current user.
+- The user is authorized if:
+  - They match any assigned user/role/group via the basic API
+  - **OR** they satisfy the advanced rule expression
+
+---
+
+### ✅ Best Practices
+
+- Use `.AssignToRoles`, `.AssignToUsers`, `.AssignToGroups` for straightforward workflows.
+- Use `.AssignTo(...)` when logic includes combinations or exceptions.
+- Both methods are supported and are **combined using OR** logic.
+
+```csharp
+action.AssignToUsers("john");
+action.AssignTo(r => r.Role("manager").Not(x => x.Role("blocked")));
+```
+
+🔒 The above means:
+- Allow if user is "john"
+- OR if user has role "manager" AND is **not** in role "blocked"
+
 
 ### Auto Actions
 Mark an action to be taken by condition
