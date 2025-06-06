@@ -61,7 +61,7 @@ public class WorkflowRequestTask
     /// Gets or sets the list of roles assigned to the task.
     /// These roles define which groups of users are eligible to perform the task.
     /// </summary>
-    public List<string> AssignedToRoles { get; set; } = new();
+    public List<string> AssignedToRoles { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the list of groups that the task is assigned to.
@@ -70,7 +70,7 @@ public class WorkflowRequestTask
     /// This property is used to define the groups responsible for handling the task.
     /// The groups are represented as a list of strings, where each string corresponds to a unique group identifier.
     /// </remarks>
-    public List<string> AssignedToGroups { get; set; } = new();
+    public List<string> AssignedToGroups { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the identifier of the user who has taken or completed the task.
