@@ -265,8 +265,8 @@ Definition templates help you create reusable workflow patterns and keep your wo
 ```csharp
 public static class GeneralWorkflowTemplates
 {
-    public static WorkflowDefinition<LeaveRequestData> WithCommonStates(
-        this WorkflowDefinition<LeaveRequestData> workflowDefinition)
+    public static IWorkflowDefinitionBuilder<LeaveRequestData> WithCommonStates(
+        this IWorkflowDefinitionBuilder<LeaveRequestData> workflowDefinition)
     {
         workflowDefinition
             .State(GeneralWorkflowStates.Rejected, state =>
@@ -286,8 +286,8 @@ public static class GeneralWorkflowTemplates
         return workflowDefinition;
     }
     
-     public static WorkflowState<LeaveRequestData> WithStandardRejectionActions(
-        this WorkflowState<LeaveRequestData> state)
+     public static IStateBuilder<LeaveRequestData> WithStandardRejectionActions(
+        this IStateBuilder<LeaveRequestData> state)
     {
         state.Action(GeneralWorkflowActions.Reject, GeneralWorkflowStates.Rejected);
         state.Action(GeneralWorkflowActions.Incomplete, GeneralWorkflowStates.Updating);
