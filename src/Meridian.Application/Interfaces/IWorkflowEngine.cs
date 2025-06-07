@@ -2,6 +2,7 @@ namespace Meridian.Application.Interfaces;
 
 using Core;
 using Core.Interfaces;
+using Core.Models;
 
 /// <summary>
 /// Represents the core engine for processing workflows of a specific type of data.

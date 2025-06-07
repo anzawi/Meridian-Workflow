@@ -2,19 +2,19 @@ namespace Meridian.Infrastructure.Services;
 
 using Application.Interfaces;
 using Core;
+using Core.Builders;
 using Core.Interfaces;
+using Core.Interfaces.DslBuilder;
 
 /// <inheritdoc />
 public class WorkflowDefinitionBuilder : IWorkflowDefinitionBuilder
 {
     private readonly List<(string DefinitionId, object Engine, Type DataType)> _engines = [];
     /// <inheritdoc />
-    public void Define<TData>(string definitionId, Action<WorkflowDefinition<TData>> configure)
+    public void Define<TData>(string definitionId, Action<IWorkflowDefinitionBuilder<TData>> configure)
         where TData : class, IWorkflowData
     {
-        var def = new WorkflowDefinition<TData>(definitionId);
-        configure(def);
-        def.Validate();
+        var def =  WorkflowDefinitionBuilder<TData>.Create(definitionId, configure);
         var engine = new WorkflowEngine<TData>(def);
         this._engines.Add((definitionId, engine, typeof(TData)));
     }

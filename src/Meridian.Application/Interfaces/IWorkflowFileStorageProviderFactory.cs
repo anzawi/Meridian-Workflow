@@ -1,6 +1,7 @@
 namespace Meridian.Application.Interfaces;
 
 using Core;
+using Core.Models;
 
 /// <summary>
 /// Represents a factory interface for handling workflow file storage providers.

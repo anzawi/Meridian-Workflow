@@ -1,4 +1,4 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Models;
 
 /// <summary>
 /// Represents a rule for transitioning between states in a workflow based on a condition.

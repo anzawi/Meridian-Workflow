@@ -1,7 +1,8 @@
-namespace Meridian.Infrastructure.Services.AuthBuilder;
+namespace Meridian.Core.Builders.AuthBuilder;
 
+using Contexts;
 using Core;
-using Core.Interfaces.AuthBuilder;
+using Meridian.Core.Interfaces.AuthBuilder;
 
 internal class NotRule(IAssignmentRule inner) : IAssignmentRule
 {

@@ -1,6 +1,7 @@
 namespace Meridian.Core.Interfaces.AuthBuilder;
 
-using Meridian.Core;
+using Contexts;
+using Core;
 
 /// <summary>
 /// Represents the contract for an authorization rule that determines whether a user

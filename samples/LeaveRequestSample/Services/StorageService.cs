@@ -2,6 +2,7 @@ namespace LeaveRequestSample.Services;
 
 using Meridian.Application.Interfaces;
 using Meridian.Core;
+using Meridian.Core.Models;
 using Models;
 
 /// <inheritdoc />

@@ -1,6 +1,8 @@
 namespace Meridian.Core.Extensions;
 
+using Dtos;
 using Interfaces;
+using Models;
 
 internal static class WorkflowActionExtensions
 {

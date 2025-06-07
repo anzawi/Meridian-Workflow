@@ -4,6 +4,7 @@ using Application.Interfaces;
 using Core;
 using Core.Enums;
 using Core.Exceptions;
+using Core.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 /// <summary>

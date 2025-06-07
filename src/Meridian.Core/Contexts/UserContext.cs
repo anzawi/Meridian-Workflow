@@ -1,4 +1,4 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Contexts;
 
 /// <summary>
 /// Represents the contextual information of a user within the system.
@@ -18,7 +18,7 @@ public class UserContext
     /// used to reference and distinguish individual users in various contexts such as
     /// authentication, authorization, and user management.
     /// </remarks>
-    public string UserId { get; set; } = string.Empty;
+    public string UserId { get; internal set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the list of roles assigned to the user.
@@ -28,7 +28,7 @@ public class UserContext
     /// in the context of authorization and access control. It can be used for role-based
     /// evaluation to determine whether the user has the requisite permissions or access rights.
     /// </remarks>
-    public List<string> Roles { get; set; } = [];
+    public List<string> Roles { get; internal set; } = [];
 
     /// <summary>
     /// Gets or sets the list of groups associated with the user.
@@ -37,5 +37,5 @@ public class UserContext
     /// Groups represent collections or categories to which a user belongs.
     /// These groups can be used for access control, organizing users, or enforcing business rules.
     /// </remarks>
-    public List<string> Groups { get; set; } = [];
+    public List<string> Groups { get; internal set; } = [];
 }

@@ -1,11 +1,11 @@
-namespace Meridian.Infrastructure.Services.AuthBuilder;
+namespace Meridian.Core.Builders.AuthBuilder;
 
-using Core.Interfaces.AuthBuilder;
+using Meridian.Core.Interfaces.AuthBuilder;
 
 /// <summary>
 /// Provides a mechanism to build complex assignment rules used in the workflow action assignment process.
 /// </summary>
-public class AssignmentRuleBuilder : IAssignmentRuleBuilder
+internal class AssignmentRuleBuilder : IAssignmentRuleBuilder
 {
     /// <summary>
     /// A collection of assignment rules used to define authorization logic.

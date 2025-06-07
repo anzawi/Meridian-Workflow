@@ -2,6 +2,7 @@ namespace Meridian.Application.Interfaces;
 
 using Core;
 using Core.Interfaces;
+using Core.Interfaces.DslBuilder;
 
 /// <summary>
 /// Provides the ability to define and configure workflow definitions with a custom data type.
@@ -14,6 +15,6 @@ public interface IWorkflowDefinitionBuilder
     /// <typeparam name="TData">The type of the data used in the workflow, which must implement <see cref="IWorkflowData"/>.</typeparam>
     /// <param name="definitionId">The unique identifier for the workflow definition.</param>
     /// <param name="configure">An action that specifies the configuration for the workflow definition.</param>
-    void Define<TData>(string definitionId, Action<WorkflowDefinition<TData>> configure)
+    void Define<TData>(string definitionId, Action<IWorkflowDefinitionBuilder<TData>> configure)
         where TData : class, IWorkflowData;
 }

@@ -1,5 +1,6 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Models;
 
+using Dtos;
 using Enums;
 using Extensions;
 using Interfaces;
@@ -50,7 +51,7 @@ public class WorkflowState<TData>(string name) where TData : class, IWorkflowDat
     /// another state or executing specific logic based on conditions. An action can be auto-triggered,
     /// validated, and assigned to specific users, roles, or groups.
     /// </remarks>
-    public List<WorkflowAction<TData>> Actions { get; set; } = [];
+    internal List<WorkflowAction<TData>> Actions { get; set; } = [];
 
     /// <summary>
     /// A collection of hooks to be executed when entering a specific workflow state.
@@ -64,7 +65,7 @@ public class WorkflowState<TData>(string name) where TData : class, IWorkflowDat
     /// <typeparam name="TData">
     /// The type of the workflow data associated with the state; must implement the <c>IWorkflowData</c> interface.
     /// </typeparam>
-    public List<WorkflowHookDescriptor<TData>> OnEnterHooks { get; set; } = [];
+    public List<WorkflowHookDescriptor<TData>> OnEnterHooks { get; internal set; } = [];
 
     /// <summary>
     /// Represents a collection of hooks to be executed when exiting a workflow state.
@@ -76,7 +77,7 @@ public class WorkflowState<TData>(string name) where TData : class, IWorkflowDat
     /// The hooks stored in this property are triggered when the state is exited. The behavior of these hooks
     /// is defined by their respective <see cref="WorkflowHookDescriptor{TData}"/> instances.
     /// </remarks>
-    public List<WorkflowHookDescriptor<TData>> OnExitHooks { get; set; } = [];
+    public List<WorkflowHookDescriptor<TData>> OnExitHooks { get; internal set; } = [];
 
     /// <summary>
     /// Gets the type of the workflow state represented by the <see cref="Enums.StateType"/> enumeration.
@@ -87,95 +88,16 @@ public class WorkflowState<TData>(string name) where TData : class, IWorkflowDat
     /// </value>
     public StateType Type => this.StateType;
 
-    /// <summary>
-    /// Sets the current workflow state to "Completed".
-    /// </summary>
-    /// <returns>
-    /// The updated workflow state instance with its type set to "Completed".
-    /// </returns>
-    public WorkflowState<TData> IsCompleted()
-    {
-        this.StateType = StateType.Completed;
-        return this;
-    }
-
-    /// Sets the state type of the workflow to "Start" indicating that the state is the starting point of the workflow.
-    /// <return>
-    /// The current instance of WorkflowState with its state type set to "Start".
-    /// </return>
-    public WorkflowState<TData> IsStarted()
-    {
-        this.StateType = StateType.Start;
-        return this;
-    }
 
     /// <summary>
-    /// Sets the state type to "Rejected" for the workflow state and returns the updated state.
+    /// Sets the type of the current workflow state.
     /// </summary>
-    /// <returns>The current instance of <see cref="WorkflowState{TData}"/> updated with a "Rejected" state type.</returns>
-    public WorkflowState<TData> IsRejected()
-    {
-        this.StateType = StateType.Rejected;
-        return this;
-    }
-
-    /// <summary>
-    /// Marks the workflow state as cancelled by updating the underlying state type to <see cref="StateType.Cancelled"/>.
-    /// </summary>
-    /// <returns>The current instance of <see cref="WorkflowState{TData}"/>.</returns>
-    public WorkflowState<TData> IsCancelled()
-    {
-        this.StateType = StateType.Cancelled;
-        return this;
-    }
-
-    /// <summary>
-    /// Adds a configurable action to the current workflow state with conditional transitions support.
-    /// </summary>
-    /// <param name="name">
-    /// The name of the action to be added.
+    /// <param name="type">
+    /// The type of the state, represented by the <see cref="StateType"/> enumeration. This allows specifying
+    /// whether the state is a start, normal, completed, cancelled, or rejected state.
     /// </param>
-    /// <param name="nextState">
-    /// The default state to transition to after the action is executed. This state will be used when:
-    /// <list type="bullet">
-    /// <item><description>No conditions are defined using the <see cref="WorkflowAction{TData}.When"/> method</description></item>
-    /// <item><description>None of the conditions defined using <see cref="WorkflowAction{TData}.When"/> evaluate to true</description></item>
-    /// </list>
-    /// </param>
-    /// <param name="config">
-    /// The configuration callback to apply additional settings to the action. Within this callback, you can:
-    /// <list type="bullet">
-    /// <item><description>Add conditional transitions using the <see cref="WorkflowAction{TData}.When"/> method</description></item>
-    /// <item><description>Assign users, roles, or groups</description></item>
-    /// <item><description>Configure validation and hooks</description></item>
-    /// </list>
-    /// </param>
-    /// <returns>
-    /// The updated workflow state instance with the new action added to it.
-    /// </returns>
-    /// <remarks>
-    /// When using conditional transitions with the <see cref="WorkflowAction{TData}.When"/> method in the config action,
-    /// the <paramref name="nextState"/> parameter serves as the default (fallback) state. For example:
-    /// <code>
-    /// state.Action("Approve", "PendingManagerApproval",
-    ///     action => action
-    ///         .AssignToRoles("Manager")
-    ///         .When(data => data.Amount > 10000, "PendingDirectorApproval")    // Evaluated first
-    ///         .When(data => data.Amount > 5000, "PendingSupervisorApproval")   // Evaluated second
-    ///         // If none of the above conditions are true, transitions to "PendingManagerApproval"
-    /// );
-    /// </code>
-    /// </remarks>
-    public WorkflowState<TData> Action(string name, string nextState, Action<WorkflowAction<TData>>? config = null)
+    internal void WithType(StateType type)
     {
-        if (this.Actions.Any(a => a.Name == name))
-            return this;
-
-        var action = new WorkflowAction<TData>(name) {NextState = nextState};
-
-        config?.Invoke(action);
-
-        this.Actions.Add(action);
-        return this;
+        this.StateType = type;
     }
 }

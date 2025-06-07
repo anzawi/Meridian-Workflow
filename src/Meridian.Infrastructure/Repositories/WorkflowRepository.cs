@@ -4,6 +4,7 @@ using Application.Interfaces.Repositories;
 using Core;
 using Core.Entities;
 using Core.Exceptions;
+using Core.Models;
 using DatabaseContext;
 using Microsoft.EntityFrameworkCore;
 

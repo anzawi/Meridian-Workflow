@@ -3,6 +3,7 @@ namespace Meridian.Core.Entities;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using Enums;
+using Models;
 
 /// <summary>
 /// Represents an instance of a workflow request within the system.

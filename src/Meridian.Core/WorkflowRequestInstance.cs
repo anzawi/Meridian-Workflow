@@ -2,6 +2,7 @@ namespace Meridian.Core;
 
 using Enums;
 using Interfaces;
+using Models;
 
 /// <summary>
 /// Represents an instance of a workflow request, encapsulating the state and

@@ -1,6 +1,7 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Contexts;
 
-using Interfaces;
+using Meridian.Core.Interfaces;
+using Models;
 
 /// <summary>
 /// Represents the context of a workflow request, containing information about

@@ -4,6 +4,7 @@ using System.Text.Json;
 using Application.Configuration;
 using Core;
 using Core.Entities;
+using Core.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

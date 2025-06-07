@@ -2,6 +2,7 @@ namespace Meridian.Application.DTOs;
 
 using Core;
 using Core.Interfaces;
+using Core.Models;
 
 public class WorkflowWithHistoryDto<TData> where TData: class, IWorkflowData
 {

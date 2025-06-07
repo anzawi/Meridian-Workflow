@@ -1,5 +1,6 @@
 namespace Meridian.Core.Delegates;
 
+using Contexts;
 using Interfaces;
 
 internal class DelegateWorkflowHook<TData>(Func<WorkflowContext<TData>, Task> hookFunc) : IWorkflowHook<TData>

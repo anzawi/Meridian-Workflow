@@ -1,9 +1,10 @@
 namespace Meridian.Infrastructure.Hooks.WorkflowHooksExtensions;
 
-using Application.Extensions;
 using Core;
+using Core.Dtos;
 using Core.Enums;
 using Core.Interfaces;
+using Core.Interfaces.DslBuilder;
 
 /// <summary>
 /// Provides extension methods to enhance the functionality of workflow definitions
@@ -17,8 +18,8 @@ public static class WorkflowHookExtensions
     /// <typeparam name="TData">The type of the workflow data implementing the <see cref="IWorkflowData"/> interface.</typeparam>
     /// <param name="definition">The workflow definition to which the hook is added.</param>
     /// <returns>The updated workflow definition.</returns>
-    public static WorkflowDefinition<TData> AddCompareDataAndLogHistory<TData>(
-        this WorkflowDefinition<TData> definition)
+    public static IWorkflowDefinitionBuilder<TData> AddCompareDataAndLogHistory<TData>(
+        this IWorkflowDefinitionBuilder<TData> definition)
         where TData : class, IWorkflowData
     {
 

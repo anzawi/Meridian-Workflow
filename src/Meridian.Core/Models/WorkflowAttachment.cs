@@ -1,4 +1,4 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Models;
 
 /// <summary>
 /// Represents a workflow attachment, typically used in handling files related

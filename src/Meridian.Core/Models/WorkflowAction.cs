@@ -1,5 +1,7 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Models;
 
+using Contexts;
+using Dtos;
 using Extensions;
 using Interfaces;
 using Interfaces.AuthBuilder;
@@ -36,7 +38,7 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// This rule can be configured to assign specific users, roles, or groups
     /// dynamically or statically based on the business requirements.
     /// </summary>
-    internal IAssignmentRule? AssignmentRule { get; private set; }
+    private IAssignmentRule? AssignmentRule { get; set; }
 
     /// Determines the next workflow state based on the provided data and defined transition rules or conditions.
     /// <param name="data">The workflow data used to evaluate conditions and transition rules. Must not be null.</param>
@@ -76,7 +78,7 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// <summary>
     /// Represents the next state to transition to when the workflow action is executed.
     /// </summary>
-    public string NextState { get; init; } = string.Empty;
+    internal string NextState { get; init; } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether the workflow action is automatic.
@@ -87,7 +89,7 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// an exception will be thrown during workflow validation. Conversely, if this property is false and a condition
     /// is defined, an exception will similarly occur. This ensures consistency between the auto-action behavior and its conditions.
     /// </remarks>
-    public bool IsAuto { get; set; } = false;
+    internal bool IsAuto { get; set; } = false;
 
     /// <summary>
     /// A list of user identifiers that are assigned to perform or interact with the workflow action.
@@ -123,7 +125,7 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// which define custom behaviors or logic to be executed during the workflow action's execution phase.
     /// Hooks in this collection enable customizable and extensible workflow processing.
     /// </remarks>
-    public List<WorkflowHookDescriptor<TData>> OnExecuteHooks { get; set; } = [];
+    public List<WorkflowHookDescriptor<TData>> OnExecuteHooks { get; internal set; } = [];
 
     /// <summary>
     /// Gets or sets a condition that determines whether a specific workflow action
@@ -139,7 +141,7 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// - The condition is invoked with the specific workflow data instance as input.
     /// </remarks>
     /// <typeparam name="TData">The type of the workflow data that implements <see cref="IWorkflowData"/>.</typeparam>
-    public Func<TData, bool>? Condition { get; set; }
+    public Func<TData, bool>? Condition { get; internal set; }
 
     /// <summary>
     /// A function delegate used to define custom validation logic for a workflow action.
@@ -154,7 +156,7 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// <returns>
     /// A list of strings representing validation error messages. If no errors are found, the list should be empty.
     /// </returns>
-    public Func<TData, List<string>>? ValidateInput { get; set; }
+    internal Func<TData, List<string>>? ValidateInput { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether automatic validation of input should be performed
@@ -162,14 +164,14 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// validation logic to check the inputs for the action. This property allows an alternative
     /// to implementing custom validation logic in the <see cref="ValidateInput"/> delegate.
     /// </summary>
-    public bool UseAutomaticValidation { get; set; } = true;
+    internal bool UseAutomaticValidation { get; set; } = true;
 
     /// Determines if a user is authorized to execute the current workflow action based on their user ID, roles, and groups.
     /// <param name="userId">The ID of the user attempting to perform the action. Can be null.</param>
     /// <param name="userRoles">A list of roles assigned to the user. Can be null.</param>
     /// <param name="userGroups">A list of groups assigned to the user. Can be null.</param>
     /// <returns>True if the user is authorized based on the assigned users, roles, or groups; otherwise, false.</returns>
-    public bool IsAuthorized(string? userId, List<string>? userRoles, List<string>? userGroups)
+    internal bool IsAuthorized(string? userId, List<string>? userRoles, List<string>? userGroups)
     {
         var listBased =
             (userId != null && this.AssignedUsers.Contains(userId)) ||
@@ -218,11 +220,9 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// );
     /// </code>
     /// </remarks>
-    public WorkflowAction<TData> When(Func<TData, bool> condition, string targetState)
+    internal void When(Func<TData, bool> condition, string targetState)
     {
         this._transitionConditions.Add((condition, targetState));
-
-        return this;
     }
 
     /// <summary>
@@ -230,7 +230,7 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// </summary>
     /// <param name="transitionRules">Array of transition rules containing conditions, target states, and labels.</param>
     /// <returns>The current workflow action instance for method chaining.</returns>
-    public WorkflowAction<TData> TransitionTo(
+    internal WorkflowAction<TData> TransitionTo(
         params (Func<TData, bool> When, string Target, string Label)[] transitionRules)
     {
         foreach (var (condition, targetState, label) in transitionRules)
@@ -247,48 +247,13 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// </summary>
     /// <param name="transitionRules">Array of transition rules containing conditions and target states.</param>
     /// <returns>The current workflow action instance for method chaining.</returns>
-    public WorkflowAction<TData> TransitionTo(
+    internal WorkflowAction<TData> TransitionTo(
         params (Func<TData, bool> When, string Target)[] transitionRules)
     {
         return this.TransitionTo(transitionRules.Select(rule =>
             (rule.When, rule.Target, Label: $"Transition to [{rule.Target}]")).ToArray());
     }
-
-    /// <summary>
-    /// Assigns the specified users to the workflow action.
-    /// </summary>
-    /// <param name="users">An array of user identifiers to be assigned to the workflow action.</param>
-    /// <returns>The updated workflow action instance with the specified users assigned.</returns>
-    public WorkflowAction<TData> AssignToUsers(params string[] users)
-    {
-        this.AssignedUsers.AddRange(users.Distinct());
-        return this;
-    }
-
-    /// <summary>
-    /// Assigns one or more roles to the workflow action. The roles specified will have access
-    /// or authorization for this workflow action.
-    /// </summary>
-    /// <param name="roles">An array of role names to assign to the workflow action.</param>
-    /// <returns>The current instance of <see cref="WorkflowAction{TData}"/> to allow method chaining.</returns>
-    public WorkflowAction<TData> AssignToRoles(params string[] roles)
-    {
-        this.AssignedRoles.AddRange(roles.Distinct());
-        return this;
-    }
-
-    /// <summary>
-    /// Assigns the specified groups to this workflow action, allowing only users
-    /// belonging to these groups to interact with the action.
-    /// </summary>
-    /// <param name="groups">An array of group names to assign to the workflow action.</param>
-    /// <returns>The updated <see cref="WorkflowAction{TData}"/> instance.</returns>
-    public WorkflowAction<TData> AssignToGroups(params string[] groups)
-    {
-        this.AssignedGroups.AddRange(groups.Distinct());
-        return this;
-    }
-
+    
     /// Assigns the specified assignment rule to the workflow action, determining which users, roles, or groups are assigned to the action based on the rule logic.
     /// <param name="assignmentRule">The assignment rule to be applied. Must not be null.</param>
     /// <returns>The current workflow action with the updated assignment rule applied.</returns>
