@@ -1,6 +1,7 @@
 namespace Meridian.Core.Tests;
 
-using Core.Interfaces;
+using Contexts;
+using Interfaces;
 
 public class MockWorkflowHook : IWorkflowHook<MockWorkflowData>
 {

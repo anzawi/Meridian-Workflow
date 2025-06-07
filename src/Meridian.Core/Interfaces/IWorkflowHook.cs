@@ -1,5 +1,7 @@
 namespace Meridian.Core.Interfaces;
 
+using Contexts;
+
 /// <summary>
 /// Defines a contract for a workflow hook that executes within a workflow system.
 /// A workflow hook represents a piece of logic that is executed at specific stages

@@ -1,4 +1,4 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Dtos;
 
 public class WorkflowActionDto
 {

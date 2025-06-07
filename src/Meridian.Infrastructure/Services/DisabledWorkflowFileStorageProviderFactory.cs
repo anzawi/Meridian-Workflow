@@ -2,6 +2,7 @@ namespace Meridian.Infrastructure.Services;
 
 using Application.Interfaces;
 using Core;
+using Core.Models;
 
 /// <summary>
 /// Represents a factory for creating instances responsible for handling workflow file storage

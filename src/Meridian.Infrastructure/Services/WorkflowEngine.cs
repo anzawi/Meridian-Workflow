@@ -3,9 +3,11 @@ namespace Meridian.Infrastructure.Services;
 using System.ComponentModel.DataAnnotations;
 using Application.Interfaces;
 using Core;
+using Core.Contexts;
 using Core.Enums;
 using Core.Exceptions;
 using Core.Interfaces;
+using Core.Models;
 using Helpers;
 
 /// <summary>
@@ -27,7 +29,7 @@ public class WorkflowEngine<TData>(WorkflowDefinition<TData> definition) : IWork
     private readonly WorkflowDefinition<TData> _definition = definition;
 
     /// <inheritdoc />
-    public string DefinitionId => this._definition.Id;
+    public string DefinitionId => this._definition.Name;
 
     /// <inheritdoc />
     public WorkflowDefinition<TData> GetDefinition() => this._definition;
@@ -36,7 +38,7 @@ public class WorkflowEngine<TData>(WorkflowDefinition<TData> definition) : IWork
     public async Task CreateAsync(WorkflowRequestInstance<TData> request)
     {
         request.CurrentState = this._definition.States.FirstOrDefault(state => state.Type is StateType.Start)?.Name 
-                               ?? throw new WorkflowStateException(this._definition.Id, "Start", "No Start state defined, Use state.IsStarted()");
+                               ?? throw new WorkflowStateException(this._definition.Name, "Start", "No Start state defined, Use state.IsStarted()");
 
 
         var ctx = new WorkflowContext<TData> { Request = request, History = request.Transitions };
@@ -55,11 +57,11 @@ public class WorkflowEngine<TData>(WorkflowDefinition<TData> definition) : IWork
         TData? data, List<string> userRoles, List<string> userGroups)
     {
         var currentState = this._definition.States.FirstOrDefault(s => s.Name == request.CurrentState)
-                           ?? throw new WorkflowStateException(this._definition.Id, request.CurrentState!, 
+                           ?? throw new WorkflowStateException(this._definition.Name, request.CurrentState!, 
                                "Current state not found in workflow definition");
 
         var action = currentState.Actions.FirstOrDefault(a => a.Name == actionName)
-                     ?? throw new WorkflowActionException(this._definition.Id, currentState.Name, actionName,
+                     ?? throw new WorkflowActionException(this._definition.Name, currentState.Name, actionName,
                          "Action not found in current state");
         
         data ??= request.Data ?? Activator.CreateInstance<TData>();

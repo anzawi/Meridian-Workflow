@@ -5,7 +5,9 @@ using Hooks.NormalHooks;
 using Hooks.ResusableHooks;
 using Meridian.Application.Extensions;
 using Meridian.Core;
+using Meridian.Core.Dtos;
 using Meridian.Core.Enums;
+using Meridian.Core.Interfaces.DslBuilder;
 using Models;
 
 /// <summary>
@@ -27,8 +29,8 @@ public static class LeaveRequestWorkflowTemplates
     /// <returns>
     /// The modified workflow definition with the leave request hooks added.
     /// </returns>
-    public static WorkflowDefinition<LeaveRequestData> WithLeaveRequestHooks(
-        this WorkflowDefinition<LeaveRequestData> definition)
+    public static IWorkflowDefinitionBuilder<LeaveRequestData> WithLeaveRequestHooks(
+        this IWorkflowDefinitionBuilder<LeaveRequestData> definition)
     {
         // NOTE: we can define HOOKs in multiple ways please read here:
         // https://github.com/anzawi/Meridian-Workflow/tree/main?tab=readme-ov-file#-hooks-event-handlers.
@@ -60,7 +62,7 @@ public static class LeaveRequestWorkflowTemplates
     /// This function returns a list of validation errors, if any.
     /// </param>
     public static void AddApproveAction(
-        this WorkflowState<LeaveRequestData> state,
+        this IStateBuilder<LeaveRequestData> state,
         string role,
         string to,
         bool notify = false,
@@ -95,7 +97,7 @@ public static class LeaveRequestWorkflowTemplates
     /// If set to true, a notification will be sent upon rejection.
     /// </param>
     public static void AddRejectAction(
-        this WorkflowState<LeaveRequestData> state,
+        this IStateBuilder<LeaveRequestData> state,
         string role,
         bool notify = false)
     {
@@ -120,8 +122,8 @@ public static class LeaveRequestWorkflowTemplates
     /// <returns>
     /// The modified workflow definition with the added "Direct Manager Review" state.
     /// </returns>
-    public static WorkflowDefinition<LeaveRequestData> WithDirectManagerReview(
-        this WorkflowDefinition<LeaveRequestData> workflow)
+    public static IWorkflowDefinitionBuilder<LeaveRequestData> WithDirectManagerReview(
+        this IWorkflowDefinitionBuilder<LeaveRequestData> workflow)
     {
         return workflow.State(LeaveRequestStates.DirectManagerReview, state =>
         {
@@ -149,8 +151,8 @@ public static class LeaveRequestWorkflowTemplates
     /// </summary>
     /// <param name="workflow">The workflow definition to which the section head review state will be added.</param>
     /// <returns>The workflow definition including the section head review state.</returns>
-    public static WorkflowDefinition<LeaveRequestData> WithSectionHeadReview(
-        this WorkflowDefinition<LeaveRequestData> workflow)
+    public static IWorkflowDefinitionBuilder<LeaveRequestData> WithSectionHeadReview(
+        this IWorkflowDefinitionBuilder<LeaveRequestData> workflow)
     {
         return workflow.State(LeaveRequestStates.SectionHeadReview, state =>
         {
@@ -175,7 +177,7 @@ public static class LeaveRequestWorkflowTemplates
     /// <returns>
     /// The updated workflow definition with the HR review state added.
     /// </returns>
-    public static WorkflowDefinition<LeaveRequestData> WithHrReview(this WorkflowDefinition<LeaveRequestData> workflow)
+    public static IWorkflowDefinitionBuilder<LeaveRequestData> WithHrReview(this IWorkflowDefinitionBuilder<LeaveRequestData> workflow)
     {
         return workflow.State(LeaveRequestStates.HrReview, state =>
         {
@@ -195,8 +197,8 @@ public static class LeaveRequestWorkflowTemplates
     /// <returns>
     /// The workflow definition with the configured final states.
     /// </returns>
-    public static WorkflowDefinition<LeaveRequestData> WithFinalStates(
-        this WorkflowDefinition<LeaveRequestData> workflow)
+    public static IWorkflowDefinitionBuilder<LeaveRequestData> WithFinalStates(
+        this IWorkflowDefinitionBuilder<LeaveRequestData> workflow)
     {
         workflow.State(LeaveRequestStates.Rejected, state =>
         {

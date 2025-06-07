@@ -1,4 +1,4 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Models;
 
 /// <summary>
 /// Represents a workflow transition that occurs during the lifecycle of a request.

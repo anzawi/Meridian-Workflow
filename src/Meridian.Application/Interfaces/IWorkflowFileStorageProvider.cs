@@ -1,6 +1,7 @@
 namespace Meridian.Application.Interfaces;
 
 using Core;
+using Core.Models;
 
 /// <summary>
 /// Defines a contract for file storage providers used in workflow attachment processing.

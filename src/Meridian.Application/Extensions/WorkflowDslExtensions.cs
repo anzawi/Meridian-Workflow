@@ -2,8 +2,10 @@ namespace Meridian.Application.Extensions;
 
 using Core;
 using Core.Delegates;
+using Core.Dtos;
 using Core.Enums;
 using Core.Interfaces;
+using Core.Models;
 
 /// <summary>
 /// Provides extension methods to enhance the functionality of workflow elements,
@@ -12,35 +14,6 @@ using Core.Interfaces;
 /// </summary>
 public static class WorkflowDslExtensions
 {
-    /// <summary>
-    /// Disables automatic validation for the current workflow action.
-    /// </summary>
-    /// <typeparam name="TData">The type of workflow data associated with the action, implementing <see cref="IWorkflowData"/>.</typeparam>
-    /// <param name="action">The workflow action for which automatic validation is to be disabled.</param>
-    /// <returns>The same workflow action with automatic validation disabled.</returns>
-    public static WorkflowAction<TData> DisableAutoValidation<TData>(this WorkflowAction<TData> action)
-        where TData : class, IWorkflowData
-    {
-        action.UseAutomaticValidation = false;
-        return action;
-    }
-
-    /// <summary>
-    /// Adds input validation to the workflow action using the specified validation function.
-    /// </summary>
-    /// <typeparam name="TData">The type of workflow data associated with the action.
-    /// It must implement the <see cref="IWorkflowData"/> interface.</typeparam>
-    /// <param name="action">The workflow action to which validation will be applied.</param>
-    /// <param name="validator">A function that takes the workflow data as input and returns
-    /// a list of validation error messages. If the list is empty, the input is considered valid.</param>
-    /// <returns>The updated workflow action with the specified validation applied.</returns>
-    public static WorkflowAction<TData> WithValidation<TData>(this WorkflowAction<TData> action,
-        Func<TData, List<string>> validator)
-        where TData : class, IWorkflowData
-    {
-        action.ValidateInput = validator;
-        return action;
-    }
 
     /// <summary>
     /// Prints the details of the workflow definition to the console for debugging purposes.
@@ -62,7 +35,7 @@ public static class WorkflowDslExtensions
         Console.ResetColor();
 
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine($"Workflow: {def.Id}");
+        Console.WriteLine($"Workflow: {def.Name}");
         Console.WriteLine(separator + "\n");
         Console.ResetColor();
 

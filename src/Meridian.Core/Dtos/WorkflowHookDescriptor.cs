@@ -1,7 +1,7 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Dtos;
 
-using Enums;
-using Interfaces;
+using Meridian.Core.Enums;
+using Meridian.Core.Interfaces;
 
 /// <summary>
 /// Represents a descriptor for a workflow hook, providing configuration options

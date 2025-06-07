@@ -1,8 +1,10 @@
 namespace Meridian.Application.Interfaces;
 
 using Core;
+using Core.Dtos;
 using Core.Interfaces;
-using Meridian.Application.DTOs;
+using Core.Models;
+using DTOs;
 
 /// <summary>
 /// Provides workflow management and execution functionalities for workflows that utilize a specific
@@ -73,7 +75,7 @@ public interface IWorkflowService<TData> where TData : class, IWorkflowData
     /// Retrieves the list of available actions for a specific request by ID,
     /// optionally filtered by the user ID, their roles, or groups.
     /// </summary>
-    /// <param name="requestId">The workflow request Id.</param>
+    /// <param name="requestId">The workflow request Name.</param>
     /// <param name="userId">The optional ID of the user requesting the actions.</param>
     /// <param name="userRoles">The optional list of role identifiers for the user.</param>
     /// <param name="userGroups">The optional list of group identifiers for the user.</param>

@@ -1,5 +1,6 @@
 namespace Meridian.Core.Tests;
 
+using Dtos;
 using Enums;
 
 public class WorkflowHookDescriptorTests

@@ -2,6 +2,7 @@ namespace Meridian.Application.Interfaces.Repositories;
 
 using Core;
 using Core.Entities;
+using Core.Models;
 
 /// <summary>
 /// Represents a repository interface for managing workflow request instances and transitions.
