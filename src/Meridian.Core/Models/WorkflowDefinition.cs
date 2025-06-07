@@ -1,5 +1,6 @@
-namespace Meridian.Core;
+namespace Meridian.Core.Models;
 
+using Dtos;
 using Enums;
 using Exceptions;
 using Extensions;
@@ -22,16 +23,16 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// It must be a non-empty string and is critical for distinguishing different workflow definitions.
     /// The value is also used for generating the 'Code' property in Pascal case format.
     /// </remarks>
-    public string Id { get; set; }
+    public string Name { get; private set; }
 
     /// <summary>
     /// Gets the PascalCase representation of the workflow definition's identifier.
-    /// Converts the <see cref="Id"/> property into a format where the first letter of each word is capitalized.
+    /// Converts the <see cref="Name"/> property into a format where the first letter of each word is capitalized.
     /// </summary>
     /// <remarks>
     /// Utilizes the <c>ToPascalCase</c> extension method to transform the identifier string.
     /// </remarks>
-    public string Code => this.Id.ToPascalCase();
+    public string Code => this.Name.ToPascalCase();
 
     /// <summary>
     /// Gets or sets the list of states that define the workflow's lifecycle.
@@ -46,7 +47,7 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// Thrown when the workflow does not contain any states, has states with duplicate names,
     /// or lacks a completed state.
     /// </exception>
-    public List<WorkflowState<TData>> States { get; set; } = [];
+    internal List<WorkflowState<TData>> States { get; set; } = [];
 
     /// <summary>
     /// A collection of hooks that are executed during the creation of a new workflow request.
@@ -62,14 +63,14 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// <typeparam name="TData">
     /// The type of data associated with the workflow, which must implement the <c>IWorkflowData</c> interface.
     /// </typeparam>
-    public List<WorkflowHookDescriptor<TData>> OnCreateHooks { get; set; } = [];
+    internal List<WorkflowHookDescriptor<TData>> OnCreateHooks { get; set; } = [];
 
     /// <summary>
     /// Represents a collection of hook descriptors that are triggered during transitions
     /// in the workflow lifecycle.
     /// </summary>
     /// <typeparam name="TData">The type of the workflow data associated with the workflow.</typeparam>
-    public List<WorkflowHookDescriptor<TData>> OnTransitionHooks { get; set; } = [];
+    internal List<WorkflowHookDescriptor<TData>> OnTransitionHooks { get; set; } = [];
 
     /// <summary>
     /// Represents a property for storing the historical transition information
@@ -78,7 +79,7 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// such as the action performed, the state transitioned to, and who
     /// executed the action.
     /// </summary>
-    private WorkflowTransition? OnCreateHistory { get; set; } = null;
+    internal WorkflowTransition? OnCreateHistory { get; set; } = null;
 
     /// <summary>
     /// Overrides the default "OnCreateHistory" transition with the provided transition.
@@ -89,7 +90,7 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// <returns>
     /// The current instance of <see cref="WorkflowDefinition{TData}"/> for method chaining.
     /// </returns>
-    public WorkflowDefinition<TData> OverrideOnCreateHistory(WorkflowTransition history)
+    internal WorkflowDefinition<TData> OverrideOnCreateHistory(WorkflowTransition history)
     {
         this.OnCreateHistory = history;
         return this;
@@ -99,26 +100,9 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// Represents a workflow definition for managing states, transitions, and hooks for a workflow process.
     /// </summary>
     /// <typeparam name="TData">The type of the workflow's associated data, which must implement <see cref="IWorkflowData"/>.</typeparam>
-    public WorkflowDefinition(string id)
+    internal WorkflowDefinition(string name)
     {
-        this.Id = id;
-    }
-
-    /// Adds a new state to the workflow definition.
-    /// <param name="name">The name of the state to be added to the workflow definition.</param>
-    /// <param name="config">An action to configure the state, allowing additional properties or hooks to be set.</param>
-    /// <return>The updated WorkflowDefinition instance including the newly added state.</return>
-    public WorkflowDefinition<TData> State(string name, Action<WorkflowState<TData>>? config = null)
-    {
-        var state = new WorkflowState<TData>(name);
-        config?.Invoke(state);
-        if (this.States.Count == 0)
-        {
-            state.IsStarted();
-        }
-
-        this.States.Add(state);
-        return this;
+        this.Name = name;
     }
 
 
@@ -132,7 +116,7 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// If no custom OnCreateHistory is defined, a default transition is returned
     /// based on the first state of the workflow.
     /// </returns>
-    public WorkflowTransition GetOnCreateHistory()
+    internal WorkflowTransition GetOnCreateHistory()
     {
         return this.OnCreateHistory ?? new WorkflowTransition
         {
@@ -151,7 +135,7 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// if there are no states defined, if invalid state types are present,
     /// or if transitions and next states are improperly configured.
     /// </exception>
-    public void Validate()
+    internal void Validate()
     {
         this.ValidateDefinition();
         this.ValidateStates();
@@ -174,11 +158,11 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
     /// </remarks>
     private void ValidateDefinition()
     {
-        if (string.IsNullOrWhiteSpace(this.Id))
-            throw new WorkflowDefinitionException(this.Id, "Workflow definition must have a non-empty ID.");
+        if (string.IsNullOrWhiteSpace(this.Name))
+            throw new WorkflowDefinitionException(this.Name, "Workflow definition must have a non-empty ID.");
 
         if (this.States.Count == 0)
-            throw new WorkflowDefinitionException(this.Id, "Workflow must define at least one state.");
+            throw new WorkflowDefinitionException(this.Name, "Workflow must define at least one state.");
     }
 
     /// <summary>
@@ -201,20 +185,15 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
         foreach (var state in this.States)
         {
             if (string.IsNullOrWhiteSpace(state.Name))
-                throw new WorkflowDefinitionException(this.Id, "has an empty name State!.");
+                throw new WorkflowDefinitionException(this.Name, "has an empty name State!.");
 
             if (!stateNames.Add(state.Name))
-                throw new WorkflowStateException(this.Id, state.Name, "Duplicate state name.");
-        }
-
-        if (this.States.First().Type != StateType.Start)
-        {
-            this.States.First().IsStarted();
+                throw new WorkflowStateException(this.Name, state.Name, "Duplicate state name.");
         }
 
         if (this.States.All(s => s.Type != StateType.Completed))
         {
-            throw new WorkflowDefinitionException(this.Id,
+            throw new WorkflowDefinitionException(this.Name,
                 "must have a completed state, use 'state.IsCompleted()' to set the state type to Completed.");
         }
     }
@@ -248,25 +227,25 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
             foreach (var action in state.Actions)
             {
                 if (string.IsNullOrWhiteSpace(action.Name))
-                    throw new WorkflowStateException(this.Id, state.Name,
+                    throw new WorkflowStateException(this.Name, state.Name,
                         "Has an empty name Action.");
 
                 if (!actionNames.Add(action.Name))
-                    throw new WorkflowStateException(this.Id, state.Name,
+                    throw new WorkflowStateException(this.Name, state.Name,
                         $"Has a duplicated action '{action.Name}'.");
 
                 switch (action)
                 {
                     case { IsAuto: true, Condition: null }:
-                        throw new WorkflowActionException(this.Id, state.Name, action.Name,
+                        throw new WorkflowActionException(this.Name, state.Name, action.Name,
                             "Is Auto-action and must have a condition.");
                     case { IsAuto: false, Condition: not null }:
-                        throw new WorkflowActionException(this.Id, state.Name, action.Name,
+                        throw new WorkflowActionException(this.Name, state.Name, action.Name,
                             "Has a condition but is not marked as Auto-Action.");
                 }
 
                 if (string.IsNullOrWhiteSpace(action.NextState))
-                    throw new WorkflowActionException(this.Id, state.Name, action.Name,
+                    throw new WorkflowActionException(this.Name, state.Name, action.Name,
                         "Must define a next state.");
             }
         }
@@ -289,7 +268,7 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
         {
             foreach (var action in state.Actions.Where(action => !stateNames.Contains(action.NextState)))
             {
-                throw new WorkflowActionException(this.Id, state.Name, action.Name,
+                throw new WorkflowActionException(this.Name, state.Name, action.Name,
                     $"References undefined next state '{action.NextState}'.");
             }
         }
