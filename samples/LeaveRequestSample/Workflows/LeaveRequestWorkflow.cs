@@ -87,6 +87,7 @@ public sealed class LeaveRequestWorkflow : IWorkflowBootstrapper
             // Define the start state, the request after submit will be in Under direct manager review state
             workflow.State(LeaveRequestStates.DirectManagerReview, state =>
             {
+                state.IsStart();
                 // the direct manager can approve the request
                 state.Action(LeaveRequestActions.Approve, LeaveRequestStates.HrReview, action =>
                 {

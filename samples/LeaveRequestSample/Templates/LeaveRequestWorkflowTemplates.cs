@@ -127,6 +127,7 @@ public static class LeaveRequestWorkflowTemplates
     {
         return workflow.State(LeaveRequestStates.DirectManagerReview, state =>
         {
+            state.IsStart();
             state.AddApproveAction(
                 role: "supervisor",
                 to: LeaveRequestStates.HrReview,
