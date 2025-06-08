@@ -191,6 +191,12 @@ public class WorkflowDefinition<TData> where TData : class, IWorkflowData
                 throw new WorkflowStateException(this.Name, state.Name, "Duplicate state name.");
         }
 
+        if (this.States.All(s => s.Type != StateType.Start))
+        {
+            throw new WorkflowDefinitionException(this.Name,
+                "must have a Start state, use 'state.IsStart()' to set the state type to Start.");
+        }
+        
         if (this.States.All(s => s.Type != StateType.Completed))
         {
             throw new WorkflowDefinitionException(this.Name,
