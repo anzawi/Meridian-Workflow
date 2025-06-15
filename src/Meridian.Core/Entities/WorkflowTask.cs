@@ -55,7 +55,7 @@ public class WorkflowRequestTask
     /// Represents a collection of user identifiers to whom the workflow task
     /// is assigned. These users are directly responsible for handling the task.
     /// </summary>
-    public List<string> AssignedToUsers { get; set; }
+    public List<string> AssignedToUsers { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the list of roles assigned to the task.

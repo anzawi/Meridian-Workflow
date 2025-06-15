@@ -2,7 +2,6 @@ namespace Meridian.Infrastructure.DatabaseContext;
 
 using System.Text.Json;
 using Application.Configuration;
-using Core;
 using Core.Entities;
 using Core.Models;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +41,14 @@ public class WorkflowDbContext : DbContext
     /// </remarks>
     private readonly string? _schema;
 
+    /// <summary>
+    /// Represents the database provider name used for configuring table configurations in the current database context.
+    /// This value is used to determine the appropriate column type for text-based fields in the database,
+    /// such as <see cref="WorkflowTransition.Metadata"/> and <see cref="WorkflowRequestTask.AssignedToRoles"/>,
+    /// to ensure consistent column types across different database providers.
+    /// </summary>
+    private string? _provider;
+    
     /// <summary>
     /// Represents the database context for the Meridian workflow module.
     /// </summary>
@@ -89,10 +96,27 @@ public class WorkflowDbContext : DbContext
     /// </summary>
     /// <param name="modelBuilder">An instance of <see cref="ModelBuilder"/> used to configure entity properties and relationships.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
+    { 
+        _provider = this.Database.ProviderName;
         modelBuilder.Entity<WorkflowRequestInstance>(this.ConfigureWorkflowRequestInstance);
         modelBuilder.Entity<WorkflowTransition>(this.ConfigureWorkflowTransition);
         modelBuilder.Entity<WorkflowRequestTask>(this.ConfigureWorkflowTask);
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder builder)
+    {
+        // Default max length & Unicode for all strings
+        builder.Properties<string>()
+            .HaveMaxLength(4000)
+            .AreUnicode();
+
+        // Decimal precision across the board
+        builder.Properties<decimal>()
+            .HavePrecision(18, 2);
+
+        // Ensure DateTime stored in UTC
+        builder.Properties<DateTime>()
+            .HaveConversion<UtcDateTimeConverter>();
     }
 
     /// <summary>
@@ -105,11 +129,12 @@ public class WorkflowDbContext : DbContext
     {
         var name = $"{this._prefix ?? string.Empty}{WorkflowRequestInstance.TableName}";
         entity.ToTable(name, this._schema);
-        
+
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.DataJson)
-            .HasColumnName("Data")
-            .HasColumnType("nvarchar(max)");
+        var prop = entity.Property(e => e.DataJson)
+            .HasColumnName("Data");
+        MaxLengthForTextColumn(prop);
+        
     }
 
     /// <summary>
@@ -128,11 +153,12 @@ public class WorkflowDbContext : DbContext
         var name = $"{this._prefix ?? string.Empty}{WorkflowTransition.TableName}";
         entity.ToTable(name, this._schema);
         entity.HasKey(e => e.Id);
-        entity.Property(e => e.Metadata)
+       var prop = entity.Property(e => e.Metadata)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
-                v => JsonSerializer.Deserialize<Dictionary<string, object?>>(v, (JsonSerializerOptions?)null)!)
-            .HasColumnType("nvarchar(max)");
+                v => JsonSerializer.Deserialize<Dictionary<string, object?>>(v, (JsonSerializerOptions?)null)!);
+       
+       MaxLengthForTextColumn(prop);
     }
 
     /// <summary>
@@ -161,5 +187,40 @@ public class WorkflowDbContext : DbContext
             .HasConversion(
                 v => string.Join(";", v),
                 v => v.Split(';', StringSplitOptions.RemoveEmptyEntries).ToList());
+    }
+
+    private void MaxLengthForTextColumn(PropertyBuilder prop, int maxLength = 4000)
+    {
+        var isRelational = !string.IsNullOrEmpty(_provider);
+        if (!isRelational)
+        {
+            return;
+        }
+
+        var isSqlServer = _provider!.Contains("SqlServer");
+        var isSqlite = _provider.Contains("Sqlite");
+        var isPostgres = _provider.Contains("Npgsql");
+        var isOracle = _provider.Contains("Oracle");
+
+        if (isSqlServer)
+        {
+            prop.HasColumnType("nvarchar(max)");
+        }
+        else if (isPostgres)
+        {
+            prop.HasColumnType("text");
+        }
+        else if (isOracle)
+        {
+            prop.HasColumnType("CLOB");
+        }
+        else if (isSqlite)
+        {
+            prop.HasMaxLength(maxLength);
+        }
+        else
+        {
+            prop.HasMaxLength(maxLength);
+        }
     }
 }

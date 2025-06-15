@@ -48,6 +48,8 @@ public static class WorkflowDiExtensions
             builder.Schema = options.DbBuilder.Schema;
         });
 
+        services.AddHostedService<WorkflowMigrationService>();
+
         // Attachment
         if (options.EnableAttachmentProcessor)
         {
@@ -66,13 +68,12 @@ public static class WorkflowDiExtensions
                 // Register closed type with its specific interface
                 var implementedInterface = providerType
                     .GetInterfaces()
-                    .First(i => i.IsGenericType && 
+                    .First(i => i.IsGenericType &&
                                 i.GetGenericTypeDefinition() == typeof(IWorkflowFileStorageProvider<>));
                 services.AddScoped(implementedInterface, providerType);
             }
-    
-            services.AddSingleton<IWorkflowFileStorageProviderFactory, WorkflowFileStorageProviderFactory>();
 
+            services.AddSingleton<IWorkflowFileStorageProviderFactory, WorkflowFileStorageProviderFactory>();
         }
         else
         {
@@ -83,7 +84,7 @@ public static class WorkflowDiExtensions
         WorkflowEngineRegistrar.RegisterAll(services, options.Workflows);
         services.AddSingleton(options.DbBuilder);
         services.AddScoped(typeof(IWorkflowTaskService<>), typeof(WorkflowTaskService<>));
-        
+
         return services;
     }
 }
