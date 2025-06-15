@@ -4,14 +4,39 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <IsPackable>true</IsPackable>
+        <!-- to include all projects in package -->
+        <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+
+        <Version>1.1.0</Version>
+        <PackageId>Meridian.Workflow</PackageId>
+        <Authors>Mohammad Anzawi</Authors>
+        <Description>
+            Meridian Workflow is an open‑source, lightweight, developer-first workflow engine for .NET 8+. Define workflows using a fluent DSL, handle state transitions, and manage approval tasks—all without external dependencies.
+        </Description>
+        <PackageTags>
+            workflow;state-machine;human-workflow;approval-workflow;fluent-api;dotnet8;task-management;role-based
+        </PackageTags>
+        <PackageProjectUrl>https://github.com/anzawi/Meridian-Workflow</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/anzawi/Meridian-Workflow</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Extensions\" />
+      <ProjectReference Include="..\Meridian.Infrastructure\Meridian.Infrastructure.csproj" PrivateAssets="all"/>
+      <ProjectReference Include="..\Meridian.Application\Meridian.Application.csproj" PrivateAssets="all"/>
+      <ProjectReference Include="..\Meridian.Core\Meridian.Core.csproj" PrivateAssets="all"/>
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\Meridian.Infrastructure\Meridian.Infrastructure.csproj" />
-    </ItemGroup>
-
+    <!-- to include all projects in package -->
+    <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="ResolveReferences">
+        <ItemGroup>
+            <BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget','ProjectReference'))" />
+        </ItemGroup>
+    </Target>
 </Project>
