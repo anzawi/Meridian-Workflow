@@ -2,8 +2,8 @@
 
 A lightweight, developer-first workflow engine built for .NET 8+. Define workflows using fluent DSL, handle state transitions, and manage tasks without external dependencies.
 
-![NuGet](https://img.shields.io/nuget/v/Meridian.Workflow)
-![Downloads](https://img.shields.io/nuget/dt/Meridian.Workflow)
+[![NuGet](https://img.shields.io/nuget/v/Meridian.Workflow)](https://www.nuget.org/packages/Meridian.Workflow/)
+[![Downloads](https://img.shields.io/nuget/dt/Meridian.Workflow)](https://www.nuget.org/packages/Meridian.Workflow/)
 [![License: Apache‑2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## 📚 Table of Contents
@@ -167,7 +167,7 @@ The Meridian Workflow project follows a clean architecture pattern with the foll
 
 ## 📦 Installation
 ```
-dotnet add package Meridian.Workflow --version 1.0.0
+dotnet add package Meridian.Workflow --version 1.1.0
 ```
 
 ## 🚀 Get Started in 5 Steps
