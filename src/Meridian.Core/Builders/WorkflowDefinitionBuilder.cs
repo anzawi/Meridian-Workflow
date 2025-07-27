@@ -1,3 +1,5 @@
+using Meridian.Core.Interfaces.DslBuilder.Hooks;
+
 namespace Meridian.Core.Builders;
 
 using Contexts;
@@ -58,60 +60,6 @@ internal class WorkflowDefinitionBuilder<TData> : IWorkflowDefinitionBuilder<TDa
     }
 
     /// <inheritdoc />
-    public IWorkflowDefinitionBuilder<TData> AddHook(WorkflowHookDescriptor<TData> descriptor,
-        WorkflowHookType hookType = WorkflowHookType.OnRequestCreated)
-    {
-        switch (hookType)
-        {
-            case WorkflowHookType.OnRequestCreated:
-                this._definition.OnCreateHooks.Add(descriptor);
-                break;
-            case WorkflowHookType.OnRequestTransition:
-                this._definition.OnTransitionHooks.Add(descriptor);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
-        }
-
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IWorkflowDefinitionBuilder<TData> AddHook(Func<WorkflowContext<TData>, Task> hook,
-        Action<WorkflowHookDescriptor<TData>>? setup = null,
-        WorkflowHookType hookType = WorkflowHookType.OnRequestCreated)
-    {
-        this.AddHook(new DelegateWorkflowHook<TData>(hook), setup, hookType);
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IWorkflowDefinitionBuilder<TData> AddHook(IWorkflowHook<TData> hook,
-        Action<WorkflowHookDescriptor<TData>>? setup = null, WorkflowHookType hookType = default)
-    {
-        var descriptor = new WorkflowHookDescriptor<TData>
-        {
-            Hook = hook,
-        };
-
-        setup?.Invoke(descriptor);
-
-        switch (hookType)
-        {
-            case WorkflowHookType.OnRequestCreated:
-                this._definition.OnCreateHooks.Add(descriptor);
-                break;
-            case WorkflowHookType.OnRequestTransition:
-                this._definition.OnTransitionHooks.Add(descriptor);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
-        }
-
-        return this;
-    }
-
-    /// <inheritdoc />
     public IWorkflowDefinitionBuilder<TData> OverrideOnCreateHistory(WorkflowTransition initialHistory)
     {
         this._definition.OverrideOnCreateHistory(initialHistory);
@@ -135,4 +83,56 @@ internal class WorkflowDefinitionBuilder<TData> : IWorkflowDefinitionBuilder<TDa
 
     /// <inheritdoc />
     public WorkflowDefinition<TData> Build() => this._definition;
+
+    /// <inheritdoc />
+    public HookBuilder<IWorkflowDefinitionBuilder<TData>, TData> AddHook(WorkflowHookDescriptor<TData> descriptor,
+        WorkflowHookType hookType)
+    {
+        switch (hookType)
+        {
+            case WorkflowHookType.OnRequestCreated:
+                this._definition.OnCreateHooks.Add(descriptor);
+                break;
+            case WorkflowHookType.OnRequestTransition:
+                this._definition.OnTransitionHooks.Add(descriptor);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
+        }
+
+        return new HookBuilder<IWorkflowDefinitionBuilder<TData>, TData>(this, descriptor);
+    }
+
+    /// <inheritdoc />
+    public HookBuilder<IWorkflowDefinitionBuilder<TData>, TData> AddHook(Func<WorkflowContext<TData>, Task> hook,
+        Action<WorkflowHookDescriptor<TData>>? setup = null, WorkflowHookType hookType = default)
+    {
+        return this.AddHook(new DelegateWorkflowHook<TData>(hook), setup, hookType);
+    }
+
+    /// <inheritdoc />
+    public HookBuilder<IWorkflowDefinitionBuilder<TData>, TData> AddHook(IWorkflowHook<TData> hook,
+        Action<WorkflowHookDescriptor<TData>>? setup = null, WorkflowHookType hookType = default)
+    {
+        var descriptor = new WorkflowHookDescriptor<TData>
+        {
+            Hook = hook,
+        };
+
+        setup?.Invoke(descriptor);
+
+        switch (hookType)
+        {
+            case WorkflowHookType.OnRequestCreated:
+                this._definition.OnCreateHooks.Add(descriptor);
+                break;
+            case WorkflowHookType.OnRequestTransition:
+                this._definition.OnTransitionHooks.Add(descriptor);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
+        }
+
+        return new HookBuilder<IWorkflowDefinitionBuilder<TData>, TData>(this, descriptor);
+    }
 }

@@ -44,7 +44,7 @@ public interface IWorkflowAttachment
 /// <typeparam name="TAttachmentReference">
 /// The type of the reference object associated with the attachment. This type must be a reference type.
 /// </typeparam>
-public class WorkflowAttachment<TAttachmentReference> : IWorkflowAttachment
+public sealed class WorkflowAttachment<TAttachmentReference> : IWorkflowAttachment
     where TAttachmentReference : class
 {
     /// <summary>

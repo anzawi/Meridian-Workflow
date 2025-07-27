@@ -1,7 +1,6 @@
 namespace Meridian.Infrastructure.Services;
 
 using Application.Interfaces;
-using Core;
 using Core.Models;
 
 /// <summary>

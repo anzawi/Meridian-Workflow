@@ -1,3 +1,5 @@
+using Meridian.Core.Validation.Internal;
+
 namespace Meridian.Core.Models;
 
 using Contexts;
@@ -11,8 +13,9 @@ using Interfaces.AuthBuilder;
 /// and validation mechanisms. This class is generic and works with workflow data of type <typeparamref name="TData"/>.
 /// </summary>
 /// <typeparam name="TData">The type of workflow data associated with the action, which must implement the <see cref="IWorkflowData"/> interface.</typeparam>
-public class WorkflowAction<TData>(string name) where TData : class, IWorkflowData
+public sealed class WorkflowAction<TData>(string name) where TData : class, IWorkflowData
 {
+    private Dictionary<string, object?> _taskMetadata = [];
     /// <summary>
     /// Holds the conditions and their corresponding target states for determining
     /// state transitions within a workflow action. Each entry in the list is a
@@ -64,6 +67,7 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// This property represents the human-readable identifier of the action.
     /// </summary>
     public string Name { get; private set; } = name;
+    public string Label { get; internal set; } = name;
 
     /// <summary>
     /// Gets the PascalCase representation of the <see cref="Name"/> property value.
@@ -158,6 +162,10 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// </returns>
     internal Func<TData, List<string>>? ValidateInput { get; set; }
 
+    internal List<NamedValidator<TData>> ValidationRules { get; set; } = [];
+
+    internal IDictionary<string, object?> ValidationMetadata { get; set; } = [];
+
     /// <summary>
     /// Gets or sets a value indicating whether automatic validation of input should be performed
     /// for the current workflow action. When set to <c>true</c>, the system will leverage default
@@ -165,6 +173,8 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
     /// to implementing custom validation logic in the <see cref="ValidateInput"/> delegate.
     /// </summary>
     internal bool UseAutomaticValidation { get; set; } = true;
+
+    public IReadOnlyDictionary<string, object?> TaskMetadata => this._taskMetadata.AsReadOnly();
 
     /// Determines if a user is authorized to execute the current workflow action based on their user ID, roles, and groups.
     /// <param name="userId">The ID of the user attempting to perform the action. Can be null.</param>
@@ -262,6 +272,8 @@ public class WorkflowAction<TData>(string name) where TData : class, IWorkflowDa
         this.AssignmentRule = assignmentRule;
         return this;
     }
+
+    internal void AddTaskMetadata(string key, object? value) => _taskMetadata.TryAdd(key, value);
 
     /// Validates a transition rule by ensuring the condition and target state are properly defined.
     /// <param name="condition">The condition function that determines whether the transition is valid. Must not be null.</param>

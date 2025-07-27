@@ -40,6 +40,7 @@ public class WorkflowTaskService<TData>(WorkflowDbContext db, IWorkflowEngineReg
             AssignedToGroups = action.AssignedGroups,
             AssignedToUsers = action.AssignedUsers,
             CreatedAt = DateTime.UtcNow,
+            Metadata = action.TaskMetadata.ToDictionary(m => m.Key, m => m.Value)
         });
 
         await db.WorkflowTasks.AddRangeAsync(tasks);

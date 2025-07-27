@@ -1,13 +1,14 @@
+using Meridian.Core.Interfaces.DslBuilder.Hooks;
+
 namespace Meridian.Infrastructure.Services;
 
 using Application.Interfaces;
-using Core;
 using Core.Builders;
 using Core.Interfaces;
 using Core.Interfaces.DslBuilder;
 
 /// <inheritdoc />
-public class WorkflowDefinitionBuilder : IWorkflowDefinitionBuilder
+public class WorkflowDefinitionBuilder(IHookExecutionLogger? logger) : IWorkflowDefinitionBuilder
 {
     private readonly List<(string DefinitionId, object Engine, Type DataType)> _engines = [];
     /// <inheritdoc />
@@ -15,7 +16,7 @@ public class WorkflowDefinitionBuilder : IWorkflowDefinitionBuilder
         where TData : class, IWorkflowData
     {
         var def =  WorkflowDefinitionBuilder<TData>.Create(definitionId, configure);
-        var engine = new WorkflowEngine<TData>(def);
+        var engine = new WorkflowEngine<TData>(def, logger);
         this._engines.Add((definitionId, engine, typeof(TData)));
     }
 

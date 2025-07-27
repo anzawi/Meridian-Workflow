@@ -12,7 +12,7 @@ using Interfaces;
 /// <typeparam name="TData">
 /// The type of data associated with the workflow, constrained to implement <see cref="IWorkflowData"/>.
 /// </typeparam>
-public class WorkflowState<TData>(string name) where TData : class, IWorkflowData
+public sealed class WorkflowState<TData>(string name) where TData : class, IWorkflowData
 {
     /// <summary>
     /// Represents the internal state type of the workflow state.
@@ -29,6 +29,8 @@ public class WorkflowState<TData>(string name) where TData : class, IWorkflowDat
     /// This property is used to identify and label the current state within a workflow.
     /// </summary>
     public string Name { get; private set; } = name;
+    
+    public string Label { get; internal set; } = name;
 
     /// <summary>
     /// Gets the Code for the workflow state, which is derived from the state name.

@@ -1,3 +1,5 @@
+using Meridian.Core.Interfaces.DslBuilder.Hooks;
+
 namespace Meridian.Core.Builders;
 
 using Contexts;
@@ -30,59 +32,6 @@ internal class StateBuilder<TData> : IStateBuilder<TData>
     internal StateBuilder(WorkflowState<TData> state) => this._state = state;
 
     /// <inheritdoc />
-    public IStateBuilder<TData> AddHook(WorkflowHookDescriptor<TData> descriptor,
-        StateHookType hookType = StateHookType.OnStateEnter)
-    {
-        switch (hookType)
-        {
-            case StateHookType.OnStateEnter:
-                this._state.OnEnterHooks.Add(descriptor);
-                break;
-            case StateHookType.OnStateExit:
-                this._state.OnExitHooks.Add(descriptor);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
-        }
-
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IStateBuilder<TData> AddHook(Func<WorkflowContext<TData>, Task> hook,
-        Action<WorkflowHookDescriptor<TData>>? setup = null, StateHookType hookType = StateHookType.OnStateEnter)
-    {
-        this.AddHook(new DelegateWorkflowHook<TData>(hook), setup, hookType);
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IStateBuilder<TData> AddHook(IWorkflowHook<TData> hook, Action<WorkflowHookDescriptor<TData>>? setup = null,
-        StateHookType hookType = StateHookType.OnStateEnter)
-    {
-        var descriptor = new WorkflowHookDescriptor<TData>
-        {
-            Hook = hook,
-        };
-
-        setup?.Invoke(descriptor);
-
-        switch (hookType)
-        {
-            case StateHookType.OnStateEnter:
-                this._state.OnEnterHooks.Add(descriptor);
-                break;
-            case StateHookType.OnStateExit:
-                this._state.OnExitHooks.Add(descriptor);
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
-        }
-
-        return this;
-    }
-
-    /// <inheritdoc />
     public IStateBuilder<TData> IsStart()
     {
         this._state.WithType(StateType.Start);
@@ -110,6 +59,12 @@ internal class StateBuilder<TData> : IStateBuilder<TData>
         return this;
     }
 
+    public IStateBuilder<TData> Label(string label)
+    {
+        this._state.Label = label;
+        return this;
+    }
+
     /// <inheritdoc />
     public IStateBuilder<TData> Action(string name, string nextState,
         Action<IActionBuilder<TData>>? actionBuilder = null)
@@ -123,5 +78,57 @@ internal class StateBuilder<TData> : IStateBuilder<TData>
         actionBuilder?.Invoke(builder);
         this._state.Actions.Add(action);
         return this;
+    }
+
+    /// <inheritdoc />
+    public HookBuilder<IStateBuilder<TData>, TData> AddHook(WorkflowHookDescriptor<TData> descriptor,
+        StateHookType hookType)
+    {
+        switch (hookType)
+        {
+            case StateHookType.OnStateEnter:
+                this._state.OnEnterHooks.Add(descriptor);
+                break;
+            case StateHookType.OnStateExit:
+                this._state.OnExitHooks.Add(descriptor);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
+        }
+
+        return new HookBuilder<IStateBuilder<TData>, TData>(this, descriptor);
+    }
+
+    /// <inheritdoc />
+    public HookBuilder<IStateBuilder<TData>, TData> AddHook(Func<WorkflowContext<TData>, Task> hook,
+        Action<WorkflowHookDescriptor<TData>>? setup = null, StateHookType hookType = default)
+    {
+        return this.AddHook(new DelegateWorkflowHook<TData>(hook), setup, hookType);
+    }
+
+    /// <inheritdoc />
+    public HookBuilder<IStateBuilder<TData>, TData> AddHook(IWorkflowHook<TData> hook,
+        Action<WorkflowHookDescriptor<TData>>? setup = null, StateHookType hookType = default)
+    {
+        var descriptor = new WorkflowHookDescriptor<TData>
+        {
+            Hook = hook,
+        };
+
+        setup?.Invoke(descriptor);
+
+        switch (hookType)
+        {
+            case StateHookType.OnStateEnter:
+                this._state.OnEnterHooks.Add(descriptor);
+                break;
+            case StateHookType.OnStateExit:
+                this._state.OnExitHooks.Add(descriptor);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(hookType), hookType, null);
+        }
+
+        return new HookBuilder<IStateBuilder<TData>, TData>(this, descriptor);
     }
 }

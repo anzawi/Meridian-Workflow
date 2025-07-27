@@ -1,3 +1,5 @@
+using Meridian.Core.Validation;
+
 namespace Meridian.Core.Interfaces.DslBuilder;
 
 using AuthBuilder;
@@ -20,6 +22,8 @@ public interface IActionBuilder<TData> : IHookBuilder<IActionBuilder<TData>, TDa
     /// <returns>The current instance of <see cref="IActionBuilder{TData}"/> to allow method chaining.</returns>
     IActionBuilder<TData> IsAuto();
 
+    IActionBuilder<TData> Label(string label);
+    
     /// <summary>
     /// Specifies a condition that must be met for the action to be performed.
     /// </summary>
@@ -34,7 +38,23 @@ public interface IActionBuilder<TData> : IHookBuilder<IActionBuilder<TData>, TDa
     /// </summary>
     /// <param name="validation">A function that validates the provided data and returns a list of string errors if validation fails.</param>
     /// <returns>Returns the action builder for further configuration.</returns>
+    [Obsolete("Use WithValidation(name, Func<TData, ValidationResult>) or structured overloads.")]
     IActionBuilder<TData> WithValidation(Func<TData, List<string>> validation);
+
+    /// <summary>
+    /// Adds a validation step for the action being built. The specified validation function
+    /// is executed to validate the data during the action's execution.
+    /// </summary>
+    /// <param name="name">Validation name / label.</param>
+    /// <param name="validator">A function that validates the provided data and returns a list of string errors if validation fails.</param>
+    /// <returns>Returns the action builder for further configuration.</returns>
+    IActionBuilder<TData> WithValidation(string name, Func<TData, ValidationResult> validator);
+
+    /// <summary>
+    /// I jnject a metadata to the action validation.
+    /// </summary>
+    /// <returns>Returns the action builder for further configuration.</returns>
+    IActionBuilder<TData> WithValidationMetadata(string key, object value);
 
     /// Disables automatic validation for the current action.
     /// <returns>Returns the current instance of IActionBuilder for chaining additional methods.</returns>
@@ -114,4 +134,6 @@ public interface IActionBuilder<TData> : IHookBuilder<IActionBuilder<TData>, TDa
     /// </returns>
     IActionBuilder<TData> TransitionTo(
         params (Func<TData, bool> When, string Target, string Label)[] transitionRules);
+    
+    IActionBuilder<TData> WithTaskMetadata(string key, object? value);
 }

@@ -1,6 +1,5 @@
 namespace LeaveRequestSample.Hooks.NormalHooks;
 
-using Meridian.Core;
 using Meridian.Core.Contexts;
 using Meridian.Core.Interfaces;
 using Models;

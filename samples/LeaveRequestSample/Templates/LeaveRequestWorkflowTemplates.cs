@@ -3,8 +3,6 @@ namespace LeaveRequestSample.Templates;
 using Constants;
 using Hooks.NormalHooks;
 using Hooks.ResusableHooks;
-using Meridian.Application.Extensions;
-using Meridian.Core;
 using Meridian.Core.Dtos;
 using Meridian.Core.Enums;
 using Meridian.Core.Interfaces.DslBuilder;
@@ -42,7 +40,7 @@ public static class LeaveRequestWorkflowTemplates
                 cfg.IsAsync = false;
                 cfg.Mode = HookExecutionMode.Sequential;
             }
-        );
+        ).WithName("New Leave Request Created").WithMetadata("category", "send_notification").EndHook();
     }
 
     // Approve action template

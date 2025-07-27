@@ -1,7 +1,6 @@
 namespace Meridian.Infrastructure.Hooks;
 
 using System.Reflection;
-using Core;
 using Core.Contexts;
 using Core.Interfaces;
 using Core.Models;

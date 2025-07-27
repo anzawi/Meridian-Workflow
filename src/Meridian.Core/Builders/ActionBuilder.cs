@@ -1,3 +1,7 @@
+using Meridian.Core.Interfaces.DslBuilder.Hooks;
+using Meridian.Core.Validation;
+using Meridian.Core.Validation.Internal;
+
 namespace Meridian.Core.Builders;
 
 using AuthBuilder;
@@ -28,40 +32,15 @@ internal class ActionBuilder<TData> : IActionBuilder<TData>
     internal ActionBuilder(WorkflowAction<TData> action) => this._action = action;
 
     /// <inheritdoc />
-    public IActionBuilder<TData> AddHook(WorkflowHookDescriptor<TData> descriptor, ActionHookType hookType)
-    {
-        this._action.OnExecuteHooks.Add(descriptor);
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IActionBuilder<TData> AddHook(Func<WorkflowContext<TData>, Task> hook,
-        Action<WorkflowHookDescriptor<TData>>? setup = null, ActionHookType hookType = default)
-    {
-        this.AddHook(new DelegateWorkflowHook<TData>(hook), setup);
-        return this;
-    }
-
-    /// <inheritdoc />
-    public IActionBuilder<TData> AddHook(IWorkflowHook<TData> hook, Action<WorkflowHookDescriptor<TData>>? setup = null,
-        ActionHookType hookType = default)
-    {
-        var descriptor = new WorkflowHookDescriptor<TData>
-        {
-            Hook = hook,
-        };
-
-        setup?.Invoke(descriptor);
-
-        this._action.OnExecuteHooks.Add(descriptor);
-
-        return this;
-    }
-
-    /// <inheritdoc />
     public IActionBuilder<TData> IsAuto()
     {
         this._action.IsAuto = true;
+        return this;
+    }
+
+    public IActionBuilder<TData> Label(string label)
+    {
+        this._action.Label = label;
         return this;
     }
 
@@ -76,6 +55,18 @@ internal class ActionBuilder<TData> : IActionBuilder<TData>
     public IActionBuilder<TData> WithValidation(Func<TData, List<string>> validation)
     {
         this._action.ValidateInput = validation;
+        return this;
+    }
+
+    public IActionBuilder<TData> WithValidation(string name, Func<TData, ValidationResult> validator)
+    {
+        _action.ValidationRules.Add(new NamedValidator<TData>(name, validator));
+        return this;
+    }
+
+    public IActionBuilder<TData> WithValidationMetadata(string key, object value)
+    {
+        _action.ValidationMetadata[key] = value;
         return this;
     }
 
@@ -137,5 +128,42 @@ internal class ActionBuilder<TData> : IActionBuilder<TData>
     {
         this._action.TransitionTo(transitionRules);
         return this;
+    }
+
+    public IActionBuilder<TData> WithTaskMetadata(string key, object? value)
+    {
+        this._action.AddTaskMetadata(key, value);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public HookBuilder<IActionBuilder<TData>, TData> AddHook(WorkflowHookDescriptor<TData> descriptor,
+        ActionHookType hookType)
+    {
+        this._action.OnExecuteHooks.Add(descriptor);
+        return new HookBuilder<IActionBuilder<TData>, TData>(this, descriptor);
+    }
+
+    /// <inheritdoc />
+    public HookBuilder<IActionBuilder<TData>, TData> AddHook(Func<WorkflowContext<TData>, Task> hook,
+        Action<WorkflowHookDescriptor<TData>>? setup = null, ActionHookType hookType = default)
+    {
+        return this.AddHook(new DelegateWorkflowHook<TData>(hook), setup);
+    }
+
+    /// <inheritdoc />
+    public HookBuilder<IActionBuilder<TData>, TData> AddHook(IWorkflowHook<TData> hook,
+        Action<WorkflowHookDescriptor<TData>>? setup = null, ActionHookType hookType = default)
+    {
+        var descriptor = new WorkflowHookDescriptor<TData>
+        {
+            Hook = hook,
+        };
+
+        setup?.Invoke(descriptor);
+
+        this._action.OnExecuteHooks.Add(descriptor);
+
+        return new HookBuilder<IActionBuilder<TData>, TData>(this, descriptor);
     }
 }

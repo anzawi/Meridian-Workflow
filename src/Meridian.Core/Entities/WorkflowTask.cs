@@ -108,4 +108,6 @@ public class WorkflowRequestTask
     /// It is updated to the UTC timestamp representing the time of completion when the task is marked as completed.
     /// </remarks>
     public DateTime? CompletedAt { get; set; }
+
+    public Dictionary<string, object?> Metadata { get; set; } = [];
 }
