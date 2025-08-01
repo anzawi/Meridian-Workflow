@@ -1,3 +1,5 @@
+using Meridian.Core.Interfaces.DslBuilder.Hooks;
+
 namespace Meridian.Application.Configuration;
 
 using Interfaces;
@@ -32,6 +34,8 @@ public class MeridianWorkflowOptions
     /// </remarks>
     internal Type? FileStorageProviderType { get; private set; }
 
+    internal IHookExecutionLogger? HookExecutionLogger { get; private set; } = null;
+    
     /// <summary>
     /// Gets or sets a value indicating whether the attachment processor is enabled.
     /// When set to <c>true</c>, a file storage provider must be configured using
@@ -81,6 +85,11 @@ public class MeridianWorkflowOptions
             throw new ArgumentException("Provider type must implement IWorkflowFileStorageProvider<>");
 
         this.FileStorageProviderType = providerType;
+    }
+    
+    public void UseHookExecutionLogger(IHookExecutionLogger hookExecutionLogger)
+    {
+        this.HookExecutionLogger = hookExecutionLogger;
     }
 }
 

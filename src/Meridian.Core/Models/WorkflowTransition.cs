@@ -100,5 +100,5 @@ public class WorkflowTransition
     /// the keys are strings and the values can be any object type. This enables flexible and
     /// dynamic storage of extra information pertaining to a specific workflow transition.
     /// </remarks>
-    public Dictionary<string, object?> Metadata { get; set; } = new();
+    public Dictionary<string, object?> Metadata { get; set; } = [];
 }

@@ -1,7 +1,6 @@
 namespace LeaveRequestSample.Models;
 
 using Enums;
-using Meridian.Core;
 using Meridian.Core.Interfaces;
 using Meridian.Core.Models;
 

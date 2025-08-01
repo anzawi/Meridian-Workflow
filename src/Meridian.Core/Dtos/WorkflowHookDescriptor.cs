@@ -17,6 +17,9 @@ using Meridian.Core.Interfaces;
 /// </remarks>
 public class WorkflowHookDescriptor<TData> where TData : class, IWorkflowData
 {
+    private readonly Dictionary<string, object?> _metadata = [];
+    public string? Name { get; internal set; }
+    
     /// <summary>
     /// Represents an implementation of a hook that conforms to the <see cref="IWorkflowHook{TData}"/> interface.
     /// A hook is a functional component within a workflow that executes a specific task or set of operations
@@ -65,4 +68,10 @@ public class WorkflowHookDescriptor<TData> where TData : class, IWorkflowData
     /// If enabled, details of the execution will be tracked for auditing, debugging, or monitoring purposes.
     /// </summary>
     public bool LogExecutionHistory { get; set; } = true;
+    public IReadOnlyDictionary<string, object?> Metadata => _metadata.AsReadOnly();
+
+    internal void AddMetadata(string key, object? value)
+    {
+        this._metadata[key] = value;
+    }
 }

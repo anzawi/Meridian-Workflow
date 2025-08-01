@@ -1,6 +1,8 @@
+using Meridian.Core.Extensions;
+using Meridian.Core.Interfaces.DslBuilder.Hooks;
+
 namespace Meridian.Infrastructure.Helpers;
 
-using Core;
 using Core.Contexts;
 using Core.Dtos;
 using Core.Enums;
@@ -21,10 +23,14 @@ internal static class HookExecutor
     /// <typeparam name="TData">The type of the workflow data, which must implement <see cref="IWorkflowData"/>.</typeparam>
     /// <param name="hooks">A collection of <see cref="WorkflowHookDescriptor{TData}"/> representing the hooks to be executed.</param>
     /// <param name="context">The <see cref="WorkflowContext{TData}"/> providing context for the hooks being executed.</param>
+    /// <param name="logger">The logger that implemented by consumer <see cref="IHookExecutionLogger"/></param>
+    /// <param name="cancellationToken"></param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     public static async Task ExecuteAll<TData>(
         List<WorkflowHookDescriptor<TData>> hooks,
-        WorkflowContext<TData> context)
+        WorkflowContext<TData> context,
+        IHookExecutionLogger? logger = null,
+        CancellationToken cancellationToken = default)
         where TData : class, IWorkflowData
     {
         var syncHooks = hooks.Where(h => !h.IsAsync).ToList();
@@ -36,13 +42,13 @@ internal static class HookExecutor
             {
                 foreach (var h in group)
                 {
-                    await SafeExecute(h.Hook, context, h.ContinueOnFailure, h.Hook.GetType().Name, h.LogExecutionHistory);
+                    await SafeExecute(h, context);
                 }
             }
             else
             {
                 var tasks = group.Select(h =>
-                    SafeExecute(h.Hook, context, h.ContinueOnFailure, h.Hook.GetType().Name, h.LogExecutionHistory));
+                    SafeExecute(h, context));
                 await Task.WhenAll(tasks);
             }
         }
@@ -58,7 +64,7 @@ internal static class HookExecutor
                     {
                         try
                         {
-                            await SafeExecute(h.Hook, context, h.ContinueOnFailure, h.Hook.GetType().Name, h.LogExecutionHistory);
+                            await SafeExecute(h, context);
                         }
                         catch
                         {
@@ -70,7 +76,7 @@ internal static class HookExecutor
             else
             {
                 var tasks = group.Select(h =>
-                    SafeExecute(h.Hook, context, h.ContinueOnFailure, h.Hook.GetType().Name, h.LogExecutionHistory));
+                    SafeExecute(h, context));
                 _ = Task.WhenAll(tasks);
             }
         }
@@ -83,42 +89,45 @@ internal static class HookExecutor
     /// <typeparam name="TData">The type of data used in the workflow context, which must implement <see cref="IWorkflowData"/>.</typeparam>
     /// <param name="hook">The workflow hook to be executed.</param>
     /// <param name="context">The workflow context associated with the hook execution.</param>
-    /// <param name="continueOnFailure">Indicates whether the execution should continue if the hook throws an exception. If false, exceptions will be rethrown.</param>
-    /// <param name="hookName">The name of the hook, primarily used for logging purposes.</param>
-    /// <param name="logHistory">Indicates whether an execution entry should be logged in the workflow history.</param>
     /// <returns>A task that represents the asynchronous operation of executing the workflow hook.</returns>
     private static async Task SafeExecute<TData>(
-        IWorkflowHook<TData> hook,
-        WorkflowContext<TData> context,
-        bool continueOnFailure,
-        string hookName,
-        bool logHistory) where TData : class, IWorkflowData
+        WorkflowHookDescriptor<TData> hook,
+        WorkflowContext<TData> context
+       ) where TData : class, IWorkflowData
     {
+        var startedAt = DateTime.UtcNow;
         var entry = new WorkflowTransition
         {
-           Type = "Event",
-           Action = hookName,
-           Timestamp = DateTime.UtcNow,
-           Metadata = new Dictionary<string, object?>()
+            Type = "Event",
+            Action = hook.Name ?? hook.GetType().Name,
+            Timestamp = startedAt,
+            Metadata = [],
         };
 
         try
         {
-            await hook.ExecuteAsync(context);
-            entry.Metadata.Add("Statue", "Success");
+            await hook.Hook.ExecuteAsync(context);
+            entry.Metadata.Add("Status", "Success");
+            entry.Metadata.Add("startedAt", startedAt);
+            entry.Metadata.Add("DurationMs", (DateTime.UtcNow - startedAt).TotalMilliseconds);
+            entry.Metadata.Add("Status", "Success");
+
+            entry.Metadata.MergeMetadata(hook.Metadata); // Add hook metadata to entry metadata ( if any)
         }
         catch (Exception ex)
         {
-            entry.Metadata.Add("Statue", "Failed");
+            entry.Metadata.Add("Status", "Failed");
             entry.Metadata.Add("Error", ex.Message);
-
+            entry.Metadata.Add("startedAt", startedAt);
+            entry.Metadata.Add("DurationMs", (DateTime.UtcNow - startedAt).TotalMilliseconds);
+            entry.Metadata.MergeMetadata(hook.Metadata);
             context.History.Add(entry); // Always log before failing
-            if (!continueOnFailure)
+            if (!hook.ContinueOnFailure)
                 throw;
             return;
         }
 
-        if (logHistory)
+        if (hook.LogExecutionHistory)
         {
             context.History.Add(entry);
         }

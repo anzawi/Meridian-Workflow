@@ -1,6 +1,5 @@
 namespace Meridian.Application.Interfaces.Repositories;
 
-using Core;
 using Core.Entities;
 using Core.Models;
 

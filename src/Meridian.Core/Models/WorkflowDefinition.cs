@@ -13,7 +13,7 @@ using Interfaces;
 /// The type of data that the workflow operates on.
 /// This type must implement the <see cref="IWorkflowData"/> interface.
 /// </typeparam>
-public class WorkflowDefinition<TData> where TData : class, IWorkflowData
+public sealed class WorkflowDefinition<TData> where TData : class, IWorkflowData
 {
     /// <summary>
     /// Gets or sets the unique identifier for the workflow definition.

@@ -1,9 +1,6 @@
 namespace LeaveRequestSample.Hooks.ResusableHooks;
 
-using Meridian.Application.Extensions;
-using Meridian.Core;
 using Meridian.Core.Enums;
-using Meridian.Core.Interfaces;
 using Meridian.Core.Interfaces.DslBuilder;
 using Models;
 using NormalHooks;

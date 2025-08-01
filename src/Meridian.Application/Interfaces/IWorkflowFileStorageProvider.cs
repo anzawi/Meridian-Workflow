@@ -1,6 +1,5 @@
 namespace Meridian.Application.Interfaces;
 
-using Core;
 using Core.Models;
 
 /// <summary>

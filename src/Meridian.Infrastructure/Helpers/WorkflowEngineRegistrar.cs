@@ -1,3 +1,5 @@
+using Meridian.Application.Configuration;
+
 namespace Meridian.Infrastructure.Helpers;
 
 using Application.Interfaces;
@@ -27,12 +29,11 @@ internal static class WorkflowEngineRegistrar
     /// Registers all workflow engines, services, and the workflow engine registry into the provided service collection.
     /// </summary>
     /// <param name="services">The service collection to register the workflow components into.</param>
-    /// <param name="bootstrappers">The collection of workflow bootstrappers responsible for registering individual workflows.</param>
-    public static void RegisterAll(
-        IServiceCollection services,
-        IEnumerable<IWorkflowBootstrapper> bootstrappers)
+    /// <param name="options">Workflow Configuration options.</param>
+    public static void RegisterAll(IServiceCollection services, MeridianWorkflowOptions options)
     {
-        var builder = new WorkflowDefinitionBuilder();
+        var bootstrappers = options.Workflows;
+        var builder = new WorkflowDefinitionBuilder(options.HookExecutionLogger);
 
         foreach (var bootstrapper in bootstrappers)
             bootstrapper.Register(builder);

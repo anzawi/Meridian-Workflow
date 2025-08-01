@@ -1,6 +1,5 @@
 namespace Meridian.Infrastructure.Hooks.WorkflowHooksExtensions;
 
-using Core;
 using Core.Dtos;
 using Core.Enums;
 using Core.Interfaces;

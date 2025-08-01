@@ -48,6 +48,8 @@ public interface IStateBuilder<TData>: IHookBuilder<IStateBuilder<TData>, TData,
     /// The updated workflow state builder instance with the cancellation type applied.
     /// </returns>
     IStateBuilder<TData> IsCanceled();
+
+    IStateBuilder<TData> Label(string label);
     
       /// <summary>
     /// Adds a configurable action to the current workflow state with conditional transitions support.

@@ -1,3 +1,6 @@
+using Meridian.Core.Interfaces.DslBuilder.Hooks;
+using Meridian.Core.Validation;
+
 namespace Meridian.Infrastructure.Services;
 
 using System.ComponentModel.DataAnnotations;
@@ -18,7 +21,7 @@ using Helpers;
 /// <typeparam name="TData">
 /// The type of data that the workflow operates on. Must implement the IWorkflowData interface.
 /// </typeparam>
-public class WorkflowEngine<TData>(WorkflowDefinition<TData> definition) : IWorkflowEngine<TData>
+public class WorkflowEngine<TData>(WorkflowDefinition<TData> definition, IHookExecutionLogger? logger) : IWorkflowEngine<TData>
     where TData : class, IWorkflowData
 {
     /// <summary>
@@ -65,11 +68,15 @@ public class WorkflowEngine<TData>(WorkflowDefinition<TData> definition) : IWork
                          "Action not found in current state");
         
         data ??= request.Data ?? Activator.CreateInstance<TData>();
+        // [Obsolete]
         var errors = ValidateUserInput(action, data);
         if (!string.IsNullOrEmpty(errors))
         {
             throw new ValidationException(errors);
         }
+        // [/Obsolete]
+        ValidateAction(currentState.Name, action, data); // throw exception if the validation fails.
+        
         var ctx = new WorkflowContext<TData>
         {
             Request = request,
@@ -185,5 +192,34 @@ public class WorkflowEngine<TData>(WorkflowDefinition<TData> definition) : IWork
         }
 
         return null;
+    }
+    
+    /// <summary>
+    /// Validates the user-provided input data against both standard data annotations
+    /// and action-specific custom validation rules.
+    /// </summary>
+    /// <param name="stateName">Current state name.</param>
+    /// <param name="action">The workflow action specifying the custom validation rules.</param>
+    /// <param name="data">The user-provided input data to be validated.</param>
+    /// <exception cref="ValidationException">
+    /// Thrown when the input data fails standard validation or custom validation rules.
+    /// </exception>
+    private static void ValidateAction(string stateName, WorkflowAction<TData> action, TData data)
+    {
+        var failures = (from validator in action.ValidationRules
+        let result = validator.Validate(data)
+        where !result.IsValid
+        select new ValidationFailure
+        {
+            ValidationName = validator.Name,
+            Message = result.Message!,
+            Code = result.Code,
+            Severity = result.Severity,
+            Metadata = result.Metadata
+        }).ToList();
+
+        if (failures.Count > 0)
+            throw new WorkflowValidationFailureException(stateName, action.Name, failures);
+
     }
 }

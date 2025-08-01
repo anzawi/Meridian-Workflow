@@ -10,7 +10,7 @@ namespace Meridian.Core.Models;
 /// This type is used to evaluate the condition and must provide the necessary structure
 /// for determining the validity of the transition.
 /// </typeparam>
-internal record TransitionRule<TData>(
+internal sealed record TransitionRule<TData>(
     Func<TData, bool> Condition,
     string TargetState,
     // For debugging purposes

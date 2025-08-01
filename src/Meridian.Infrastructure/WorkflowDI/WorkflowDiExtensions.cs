@@ -1,3 +1,5 @@
+using Meridian.Core.Interfaces.DslBuilder.Hooks;
+
 namespace Meridian.Infrastructure.WorkflowDI;
 
 using Application.Configuration;
@@ -81,7 +83,7 @@ public static class WorkflowDiExtensions
         }
 
         // Workflows
-        WorkflowEngineRegistrar.RegisterAll(services, options.Workflows);
+        WorkflowEngineRegistrar.RegisterAll(services, options);
         services.AddSingleton(options.DbBuilder);
         services.AddScoped(typeof(IWorkflowTaskService<>), typeof(WorkflowTaskService<>));
 
